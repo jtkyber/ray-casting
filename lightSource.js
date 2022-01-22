@@ -7,7 +7,7 @@ export default class LightSource {
         this.allWalls = allWalls;
         this.rayIncrement = 0.2;
         this.rayOpacity = 0.07;
-        this.fov = 45;
+        this.fov = 60;
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
@@ -17,6 +17,7 @@ export default class LightSource {
         this.moveDirFB = null;
         this.moveDirLR = null;
         this.walls3d = new Walls3d(world3d, this.fov);
+        this.flashlight = document.querySelector('.flashlight');
     }
 
     setPlayerPos(playerX, playerY) {
@@ -125,7 +126,7 @@ export default class LightSource {
     draw(x = this.playerX, y = this.playerY) {
         const ctx = world.getContext('2d');
         const allWalls3d = [];
-
+        
         for (let i = -this.fov/2 + this.rotation; i < this.fov/2 + this.rotation; i += this.rayIncrement) {
             const theta = i * (Math.PI / 180);
             const r = 50;
@@ -149,7 +150,7 @@ export default class LightSource {
                 ctx.moveTo(x, y);
                 ctx.lineTo(closest[0], closest[1]);
                 ctx.strokeStyle = `rgba(255,255,255,${this.rayOpacity})`;
-                ctx.lineWidth = 10;
+                ctx.lineWidth = 1;
                 ctx.stroke();
                 ctx.lineWidth = 1;
                 allWalls3d.push(record);
