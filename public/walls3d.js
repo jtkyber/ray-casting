@@ -9,8 +9,12 @@ export default class Walls3d {
     draw(walls) {
         this.ctx.clearRect(0, 0, this.world3d.width, this.world3d.height);
         const rayNum = walls.length;
-        const wallWidth = Math.ceil(this.world3d.width / rayNum);
+        const wallWidth = this.world3d.width / rayNum;
+        // const wallWidthDec = '.' + parseFloat(this.world3d.width / rayNum).toString().split('.')[1];
+        // const wallShift = (wallWidthDec * rayNum) / 2;
         let wallX = 0;
+
+        // this.ctx.moveTo(wallShift, 0);
 
         for (const wall of walls) {
             const fovRad = (this.fov) * (Math.PI / 180);
@@ -19,10 +23,10 @@ export default class Walls3d {
             const wallOpacity = ((this.world3d.height - wall) / this.world3d.height);
 
             this.ctx.beginPath();
-            // this.ctx.strokeStyle = `rgba(0,0,0,1)`;
+            this.ctx.strokeStyle = `rgba(${186 * wallOpacity},${200 * wallOpacity},${255 * wallOpacity},1)`;
             this.ctx.fillStyle = `rgba(${186 * wallOpacity},${200 * wallOpacity},${255 * wallOpacity},1)`;
             this.ctx.rect(wallX, wallStartTop, wallWidth, this.world3d.height - wallStartTop * 2);
-            // this.ctx.stroke();
+            this.ctx.stroke();
             this.ctx.fill();
             wallX += wallWidth;
         }
