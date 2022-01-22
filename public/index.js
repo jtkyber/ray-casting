@@ -3,6 +3,12 @@ import Walls from './walls.js';
 
 const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
+const ctx = world.getContext('2d');
+const ctx3d = world3d.getContext('2d');
+ctx.canvas.width = window.innerWidth / 2.3;
+ctx3d.canvas.width = window.innerWidth / 2.3;
+ctx.canvas.height = window.innerHeight / 1.2;
+ctx3d.canvas.height = window.innerHeight / 1.2;
 
 let fpsInterval, now, then, elapsed, requestID;
 
@@ -34,15 +40,13 @@ const beginLoop = (fps) => {
     const allWalls = walls.build();
     lightSource = new LightSource(world, world3d, allWalls);
 
+    ctx.canvas.width = window.innerWidth / 2.3;
+    ctx3d.canvas.width = window.innerWidth / 2.3;
+    ctx.canvas.height = window.innerHeight / 1.2;
+    ctx3d.canvas.height = window.innerHeight / 1.2;
+
     gameLoop();
 }
-
-document.addEventListener('click', () => {
-    if (requestID) {
-        cancelAnimationFrame(requestID);
-    }
-    beginLoop(60);
-})
 
 document.addEventListener('mousemove', (e) => {
     // const playerX = e.clientX - (document.querySelector('#world').getBoundingClientRect().left - document.querySelector('body').getBoundingClientRect().left);
@@ -78,4 +82,11 @@ document.addEventListener('keyup', (e) => {
     if ((e.code === 'KeyW') || (e.code === 'KeyS')) {
         lightSource.setMoveDir(null);
     } 
+
+    if (e.code === 'Space') {
+        if (requestID) {
+            cancelAnimationFrame(requestID);
+        }
+        beginLoop(60);
+    }
 })
