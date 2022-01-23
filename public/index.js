@@ -6,8 +6,9 @@ const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
 const ctx = world.getContext('2d');
 const ctx3d = world3d.getContext('2d');
-ctx.canvas.width = window.innerWidth / 2.3;
-ctx3d.canvas.width = window.innerWidth / 2.3;
+
+ctx.canvas.width = window.innerWidth / 2.2;
+ctx3d.canvas.width = window.innerWidth / 2.2;
 ctx.canvas.height = window.innerHeight / 1.2;
 ctx3d.canvas.height = window.innerHeight / 1.2;
 
@@ -48,8 +49,8 @@ const beginLoop = (fps) => {
         ctx.canvas.height = window.innerHeight;
         ctx3d.canvas.height = window.innerHeight;
     } else {
-        ctx.canvas.width = window.innerWidth / 3;
-        ctx3d.canvas.width = window.innerWidth / 3;
+        ctx.canvas.width = window.innerWidth / 2.2;
+        ctx3d.canvas.width = window.innerWidth / 2.2;
         ctx.canvas.height = window.innerHeight / 1.2;
         ctx3d.canvas.height = window.innerHeight / 1.2;
     }
@@ -89,10 +90,11 @@ document.addEventListener('keydown', (e) => {
     }
 
     if (e.code === 'Enter') {
+        e.preventDefault();
         if (window.getComputedStyle(world).display === 'none') {
             world.style.display = 'block';
-            ctx.canvas.width = window.innerWidth / 3;
-            ctx3d.canvas.width = window.innerWidth / 3;
+            ctx.canvas.width = window.innerWidth / 2.2;
+            ctx3d.canvas.width = window.innerWidth / 2.2;
             ctx.canvas.height = window.innerHeight / 1.2;
             ctx3d.canvas.height = window.innerHeight / 1.2;
         } else {

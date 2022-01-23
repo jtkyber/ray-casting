@@ -16,7 +16,7 @@ export default class LightSource {
         this.rotationAmt = 1.5;
         this.moveDirFB = null;
         this.moveDirLR = null;
-        this.walls3d = new Walls3d(world3d, this.fov, ((this.angle % 360) + 360) % 360);
+        this.walls3d = new Walls3d(world3d, this.fov);
         this.flashlight = document.querySelector('.flashlight');
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
@@ -25,7 +25,9 @@ export default class LightSource {
     }
 
     setAngles() {
+        console.log('test')
         this.rayAngles = [];
+        this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         for (let x = 0; x < this.world3d.width + this.rayDensityAdjustment; x += this.rayDensityAdjustment) {
             this.rayAngles.push(Math.atan((x - this.world3d.width / 2) / this.distToProjectionPlane));
         }
@@ -45,7 +47,6 @@ export default class LightSource {
             }
         }
         this.fovRad = this.fov * (Math.PI / 180);
-        this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.setAngles();
     }
 
