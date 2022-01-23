@@ -16,7 +16,7 @@ export default class Walls3d {
 
             const fovRad = this.fov * (Math.PI / 180);
             const wallHeight = wall * Math.cos(fovRad);
-            const wallStartTop = (this.world3d.height / 2) + 10000 / wall;
+            let wallStartTop = (this.world3d.height / 2) + 10000 / wall;
             const wallOpacity = ((this.world3d.height - wall) / this.world3d.height);
 
             this.ctx.beginPath();

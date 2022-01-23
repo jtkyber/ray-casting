@@ -13,7 +13,7 @@ export default class LightSource {
         this.playerY = world.height / 2;
         this.moveAmt = 2;
         this.angle = 90;
-        this.rotationAmt = 1.5;
+        this.rotationAmt = 2;
         this.moveDirFB = null;
         this.moveDirLR = null;
         this.walls3d = new Walls3d(world3d, this.fov);
@@ -21,7 +21,7 @@ export default class LightSource {
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
-        this.rayDensityAdjustment = 5;
+        this.rayDensityAdjustment = 8;
     }
 
     setAngles() {
