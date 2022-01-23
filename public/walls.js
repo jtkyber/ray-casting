@@ -1,11 +1,12 @@
 export default class Walls {
-    constructor(world) {
+    constructor(world, wallNum) {
         this.world = world;
         this.lines = [];
+        this.wallNum = wallNum;
     }
 
     build = () => {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < this.wallNum; i++) {
             const x1 = Math.floor(Math.random() * this.world.width);
             const y1 = Math.floor(Math.random() * this.world.height);
             const x2 = Math.floor(Math.random() * this.world.width);
