@@ -1,7 +1,6 @@
 import LightSource from './lightSource.js';
 import Walls from './walls.js';
 
-const gameContainer = document.querySelector('.container');
 const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
 const ctx = world.getContext('2d');
