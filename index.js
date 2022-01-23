@@ -37,22 +37,23 @@ const beginLoop = (fps) => {
     fpsInterval = 1000 / fps;
     then = Date.now();
 
-    walls = new Walls(world);
-    const allWalls = walls.build();
-    lightSource = new LightSource(world, world3d, allWalls);
-    lightSource.setAngles();
-
     if (window.getComputedStyle(world).display === 'none') {
         ctx.canvas.width = window.innerWidth;
         ctx3d.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
         ctx3d.canvas.height = window.innerHeight;
+        walls = new Walls(world, 10);
     } else {
         ctx.canvas.width = window.innerWidth / 2.2;
         ctx3d.canvas.width = window.innerWidth / 2.2;
         ctx.canvas.height = window.innerHeight / 1.2;
         ctx3d.canvas.height = window.innerHeight / 1.2;
+        walls = new Walls(world, 4);
     }
+
+    const allWalls = walls.build();
+    lightSource = new LightSource(world, world3d, allWalls);
+    lightSource.setAngles();
 
     gameLoop();
 }
@@ -87,23 +88,6 @@ document.addEventListener('keydown', (e) => {
     } else if (e.code === 'KeyD') {
         lightSource.setRotation('right');
     }
-
-    if (e.code === 'Enter') {
-        e.preventDefault();
-        if (window.getComputedStyle(world).display === 'none') {
-            world.style.display = 'block';
-            ctx.canvas.width = window.innerWidth / 2.2;
-            ctx3d.canvas.width = window.innerWidth / 2.2;
-            ctx.canvas.height = window.innerHeight / 1.2;
-            ctx3d.canvas.height = window.innerHeight / 1.2;
-        } else {
-            world.style.display = 'none';
-            ctx.canvas.width = window.innerWidth;
-            ctx3d.canvas.width = window.innerWidth;
-            ctx.canvas.height = window.innerHeight;
-            ctx3d.canvas.height = window.innerHeight;
-        }
-    }
 })
 
 document.addEventListener('keyup', (e) => {
@@ -118,6 +102,27 @@ document.addEventListener('keyup', (e) => {
     if (e.code === 'Space') {
         if (requestID) {
             cancelAnimationFrame(requestID);
+        }
+        beginLoop(60);
+    }
+
+    if (e.code === 'Enter') {
+        e.preventDefault();
+        if (requestID) {
+            cancelAnimationFrame(requestID);
+        }
+        if (window.getComputedStyle(world).display === 'none') {
+            world.style.display = 'block';
+            // ctx.canvas.width = window.innerWidth / 2.2;
+            // ctx3d.canvas.width = window.innerWidth / 2.2;
+            // ctx.canvas.height = window.innerHeight / 1.2;
+            // ctx3d.canvas.height = window.innerHeight / 1.2;
+        } else {
+            world.style.display = 'none';
+            // ctx.canvas.width = window.innerWidth;
+            // ctx3d.canvas.width = window.innerWidth;
+            // ctx.canvas.height = window.innerHeight;
+            // ctx3d.canvas.height = window.innerHeight;
         }
         beginLoop(60);
     }

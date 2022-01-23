@@ -17,7 +17,7 @@ export default class Walls3d {
             const fovRad = this.fov * (Math.PI / 180);
             const wallHeight = wall * Math.cos(fovRad);
             let wallStartTop = (this.world3d.height / 2) + 10000 / wall;
-            const wallOpacity = ((this.world3d.height - wall) / this.world3d.height);
+            const wallOpacity = ((this.world3dDiag - wall) / this.world3dDiag);
 
             this.ctx.beginPath();
             this.ctx.strokeStyle = `rgba(${186 * wallOpacity},${200 * wallOpacity},${255 * wallOpacity},1)`;

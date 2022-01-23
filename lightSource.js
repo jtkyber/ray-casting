@@ -25,7 +25,6 @@ export default class LightSource {
     }
 
     setAngles() {
-        console.log('test')
         this.rayAngles = [];
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         for (let x = 0; x < this.world3d.width + this.rayDensityAdjustment; x += this.rayDensityAdjustment) {
