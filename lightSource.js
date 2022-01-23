@@ -7,7 +7,7 @@ export default class LightSource {
         this.allWalls = allWalls;
         this.rayIncrement = 0.2;
         this.rayOpacity = 0.07;
-        this.fov = 60;
+        this.fov = 45;
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
@@ -16,8 +16,19 @@ export default class LightSource {
         this.rotationAmt = 1.5;
         this.moveDirFB = null;
         this.moveDirLR = null;
-        this.walls3d = new Walls3d(world3d, this.fov);
+        this.walls3d = new Walls3d(world3d, this.fov, ((this.angle % 360) + 360) % 360);
         this.flashlight = document.querySelector('.flashlight');
+        this.fovRad = this.fov * (Math.PI / 180);
+        this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
+        this.rayAngles = [];
+        this.rayDensityAdjustment = 5;
+    }
+
+    setAngles() {
+        this.rayAngles = [];
+        for (let x = 0; x < this.world3d.width + this.rayDensityAdjustment; x += this.rayDensityAdjustment) {
+            this.rayAngles.push(Math.atan((x - this.world3d.width / 2) / this.distToProjectionPlane));
+        }
     }
 
     setPlayerPos(playerX, playerY) {
@@ -25,16 +36,28 @@ export default class LightSource {
         this.playerY = playerY;
     }
 
-    setRayIncrement(arrow) {
-        if (arrow === 'down') {
-            this.rayIncrement += 0.1;
-            this.rayOpacity += 0.02;
-        } else if (arrow === 'up') {
-            if (this.rayIncrement > 0.1999999) {
-                this.rayIncrement -= 0.1;
-                this.rayOpacity -= 0.02;
+    setFov(arrow) {
+        if (this.fov > 0 && this.fov < 180) {
+            if (arrow === 'down' && this.fov > 0) {
+                this.fov -= 1;
+            } else if (arrow === 'up' && this.fov < 180) {
+                this.fov += 1;
             }
         }
+        this.fovRad = this.fov * (Math.PI / 180);
+        this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
+        this.setAngles();
+    }
+
+    setRayDensity(key) {
+        if (key === 'e' && this.rayDensityAdjustment > 1) {
+            this.rayDensityAdjustment -= 1;
+            this.rayOpacity -= 0.01;
+        } else if (key === 'q' && this.rayDensityAdjustment < 100) {
+            this.rayDensityAdjustment += 1;
+            this.rayOpacity += 0.01;
+        }
+        this.setAngles();
     }
 
     setRotation(dir) {
@@ -96,7 +119,8 @@ export default class LightSource {
         }
     }
 
-    getIntersection = (x, y, r, theta, wall) => {
+    getIntersection = (x, y, r, theta, wall, rot) => {
+        const adjustedAngle = theta + rot * (Math.PI / 180);
         const x1 = wall.x1;
         const y1 = wall.y1;
         const x2 = wall.x2;
@@ -104,8 +128,8 @@ export default class LightSource {
 
         const x3 = x;
         const y3 = y;
-        const x4 = x + r * Math.cos(theta);
-        const y4 = y + r * Math.sin(theta);
+        const x4 = x + r * Math.cos(adjustedAngle);
+        const y4 = y + r * Math.sin(adjustedAngle);
 
         const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         if (denom == 0) {
@@ -126,18 +150,20 @@ export default class LightSource {
     draw(x = this.playerX, y = this.playerY) {
         const ctx = world.getContext('2d');
         const allWalls3d = [];
+        const rotation = ((this.rotation % 360) + 360) % 360;
         
-        for (let i = -this.fov/2 + this.rotation; i < this.fov/2 + this.rotation; i += this.rayIncrement) {
-            const theta = i * (Math.PI / 180);
-            const r = 50;
+        for (let i = 0; i < this.rayAngles.length; i ++) {
+            const r = 1;
             let closest = null;
             let record = Infinity;
+            
             for (const wall of this.allWalls) {
-                const intersection = this.getIntersection(x, y, r, theta, wall);
+                const intersection = this.getIntersection(x, y, r, this.rayAngles[i], wall, rotation);
                 if (intersection) {
                     const dx = Math.abs(x - intersection[0]);
                     const dy = Math.abs(y - intersection[1]);
                     const d = Math.sqrt(dx * dx + dy * dy);
+
                     record = Math.min(d, record);
                     if (d <= record) {
                         record = d;

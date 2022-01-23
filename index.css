@@ -1,26 +1,29 @@
 * {
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    display: flex;
     width: 100vw;
     height: 100vh;
-    justify-content: center;
-    align-items: center;
     background-color: rgba(40, 40, 40, 1);
 }
 
 .container {
     display: flex;
     flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
     gap: 5rem;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 }
 
-img {
+/* img {
     display: none;
-}
+} */
 
 #world {
     border: 1px solid rgb(255, 255, 255);
@@ -29,5 +32,6 @@ img {
 
 #world3d {
     border: 2px solid rgb(255, 255, 255);
-    background: linear-gradient(0deg, #07110d 50%, #001c3a 0%);
+    background: linear-gradient(0deg, #07110d 60%, #001c3a 0%);
+    background-color: rgba(0, 0, 0, 1);
 }
