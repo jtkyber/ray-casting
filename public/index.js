@@ -1,6 +1,7 @@
 import LightSource from './lightSource.js';
 import Walls from './walls.js';
 
+const gameContainer = document.querySelector('.container');
 const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
 const ctx = world.getContext('2d');
@@ -39,11 +40,19 @@ const beginLoop = (fps) => {
     walls = new Walls(world);
     const allWalls = walls.build();
     lightSource = new LightSource(world, world3d, allWalls);
+    lightSource.setAngles();
 
-    ctx.canvas.width = window.innerWidth / 2.3;
-    ctx3d.canvas.width = window.innerWidth / 2.3;
-    ctx.canvas.height = window.innerHeight / 1.2;
-    ctx3d.canvas.height = window.innerHeight / 1.2;
+    if (window.getComputedStyle(world).display === 'none') {
+        ctx.canvas.width = window.innerWidth;
+        ctx3d.canvas.width = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+        ctx3d.canvas.height = window.innerHeight;
+    } else {
+        ctx.canvas.width = window.innerWidth / 3;
+        ctx3d.canvas.width = window.innerWidth / 3;
+        ctx.canvas.height = window.innerHeight / 1.2;
+        ctx3d.canvas.height = window.innerHeight / 1.2;
+    }
 
     gameLoop();
 }
@@ -56,9 +65,15 @@ document.addEventListener('mousemove', (e) => {
 
 document.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowUp') {
-        lightSource.setRayIncrement('up');
+        lightSource.setFov('up');
     } else if (e.code === 'ArrowDown') {
-        lightSource.setRayIncrement('down');
+        lightSource.setFov('down');
+    }
+
+    if (e.code === 'KeyQ') {
+        lightSource.setRayDensity('q');
+    } else if (e.code === 'KeyE') {
+        lightSource.setRayDensity('e');
     }
 
     if (e.code === 'KeyW') {
@@ -71,6 +86,22 @@ document.addEventListener('keydown', (e) => {
         lightSource.setRotation('left');
     } else if (e.code === 'KeyD') {
         lightSource.setRotation('right');
+    }
+
+    if (e.code === 'Enter') {
+        if (window.getComputedStyle(world).display === 'none') {
+            world.style.display = 'block';
+            ctx.canvas.width = window.innerWidth / 3;
+            ctx3d.canvas.width = window.innerWidth / 3;
+            ctx.canvas.height = window.innerHeight / 1.2;
+            ctx3d.canvas.height = window.innerHeight / 1.2;
+        } else {
+            world.style.display = 'none';
+            ctx.canvas.width = window.innerWidth;
+            ctx3d.canvas.width = window.innerWidth;
+            ctx.canvas.height = window.innerHeight;
+            ctx3d.canvas.height = window.innerHeight;
+        }
     }
 })
 
