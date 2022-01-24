@@ -31,6 +31,11 @@ const gameLoop = () => {
         lightSource.draw();
         lightSource.rotate();
         lightSource.move();
+
+        ctx3d.beginPath();
+        ctx3d.strokeStyle = `rgba(255,0,0,1)`;
+        ctx3d.ellipse(world3d.width/2, world3d.height/2, 3, 3, 2 * Math.PI, 0, 2 * Math.PI);
+        ctx3d.stroke();
     }
 }
 const beginLoop = (fps) => {
@@ -42,13 +47,13 @@ const beginLoop = (fps) => {
         ctx3d.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
         ctx3d.canvas.height = window.innerHeight;
-        walls = new Walls(world, 10);
+        walls = new Walls(world, 12);
     } else {
         ctx.canvas.width = window.innerWidth / 2.2;
         ctx3d.canvas.width = window.innerWidth / 2.2;
         ctx.canvas.height = window.innerHeight / 1.2;
         ctx3d.canvas.height = window.innerHeight / 1.2;
-        walls = new Walls(world, 4);
+        walls = new Walls(world, 6);
     }
 
     const allWalls = walls.build();
@@ -56,6 +61,10 @@ const beginLoop = (fps) => {
     lightSource.setAngles();
 
     gameLoop();
+}
+
+window.onload = () => {
+    beginLoop(60);
 }
 
 document.addEventListener('mousemove', (e) => {

@@ -5,9 +5,10 @@ export default class LightSource {
         this.world = world;
         this.world3d = world3d;
         this.allWalls = allWalls;
+        this.allWalls3d = [];
         this.rayIncrement = 0.2;
-        this.rayOpacity = 0.07;
-        this.fov = 45;
+        this.rayOpacity = 0.17;
+        this.fov = 60;
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
@@ -22,6 +23,10 @@ export default class LightSource {
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
         this.rayDensityAdjustment = 8;
+    }
+
+    setWalls(walls) {
+        this.allWalls = walls;
     }
 
     setAngles() {
@@ -79,43 +84,43 @@ export default class LightSource {
     }
 
     move() {
-        let inBoundsLeft = (this.playerX > 5);
-        let inBoundsRight = (this.playerX < this.world.width - 5);
-        let inBoundsTop = (this.playerY > 5);
-        let inBoundsBottom = (this.playerY < this.world.height - 5);
-        let angle = ((this.angle % 360) + 360) % 360;
+        // let inBoundsLeft = (this.playerX > 5);
+        // let inBoundsRight = (this.playerX < this.world.width - 5);
+        // let inBoundsTop = (this.playerY > 5);
+        // let inBoundsBottom = (this.playerY < this.world.height - 5);
+        // let angle = ((this.angle % 360) + 360) % 360;
 
-        if (angle <= 180 && angle >= 0) {
-            inBoundsLeft = true;
-        }
-        if (angle <= 360 && angle >= 180) {
-            inBoundsRight = true;
-        }
-        if (angle <= 270 && angle >= 90) {
-            inBoundsTop = true;
-        }
-        if (angle <= 90 || angle >= 270) {
-            inBoundsBottom = true;
-        }
+        // if (angle <= 180 && angle >= 0) {
+        //     inBoundsLeft = true;
+        // }
+        // if (angle <= 360 && angle >= 180) {
+        //     inBoundsRight = true;
+        // }
+        // if (angle <= 270 && angle >= 90) {
+        //     inBoundsTop = true;
+        // }
+        // if (angle <= 90 || angle >= 270) {
+        //     inBoundsBottom = true;
+        // }
 
         const dirRadians = (this.angle) * (Math.PI / 180);
         const moveX = this.moveAmt * Math.cos((90 * (Math.PI / 180)) - dirRadians);
         const moveY = this.moveAmt * Math.cos(dirRadians);
 
         if (this.moveDirFB === 'forwards') {
-            if (inBoundsLeft && inBoundsRight) {
+            if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
                 this.playerX += moveX;
             }
-            if (inBoundsTop && inBoundsBottom) {
+            if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
                 this.playerY += -moveY;
             }
         } else if (this.moveDirFB === 'backwards') {
-            if (true) {
-                this.playerX += -moveX;
-            }
-            if (true) {
-                this.playerY += moveY;
-            }
+            // if (true) {
+            //     this.playerX += -moveX;
+            // }
+            // if (true) {
+            //     this.playerY += moveY;
+            // }
         }
     }
 
@@ -149,7 +154,7 @@ export default class LightSource {
 
     draw(x = this.playerX, y = this.playerY) {
         const ctx = world.getContext('2d');
-        const allWalls3d = [];
+        this.allWalls3d = [];
         const rotation = ((this.rotation % 360) + 360) % 360;
         
         for (let i = 0; i < this.rayAngles.length; i ++) {
@@ -178,14 +183,13 @@ export default class LightSource {
                 ctx.strokeStyle = `rgba(255,255,255,${this.rayOpacity})`;
                 ctx.lineWidth = 1;
                 ctx.stroke();
-                ctx.lineWidth = 1;
-                allWalls3d.push(record);
+                this.allWalls3d.push(record);
             } else {
-                allWalls3d.push(Infinity);
+                this.allWalls3d.push(Infinity);
             }
         }
 
-        this.walls3d.draw(allWalls3d);
+        this.walls3d.draw(this.allWalls3d);
     }
 
     clear() {
