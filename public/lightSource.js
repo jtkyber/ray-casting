@@ -12,9 +12,13 @@ export default class LightSource {
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
-        this.moveAmt = 2.5;
+        this.moveAmtStart = 0.5;
+        this.moveAmt = this.moveAmtStart;
+        this.moveAmtTop = 2.5;
         this.angle = 90;
-        this.rotationAmt = 2;
+        this.rotationAmtStart = 0.2;
+        this.rotationAmt = this.rotationAmtStart;
+        this.rotationAmtTop = 2
         this.moveDirFB = null;
         this.moveDirLR = null;
         this.walls3d = new Walls3d(world3d, this.fov);
@@ -43,12 +47,10 @@ export default class LightSource {
     }
 
     setFov(arrow) {
-        if (this.fov > 0 && this.fov < 180) {
-            if (arrow === 'down' && this.fov > 0) {
-                this.fov -= 1;
-            } else if (arrow === 'up' && this.fov < 180) {
-                this.fov += 1;
-            }
+        if (arrow === 'down' && this.fov > 0) {
+            this.fov -= 1;
+        } else if (arrow === 'up' && this.fov < 170) {
+            this.fov += 1;
         }
         this.fovRad = this.fov * (Math.PI / 180);
         this.setAngles();
@@ -66,10 +68,17 @@ export default class LightSource {
     }
 
     setRotation(dir) {
+        if (this.moveDirLR === null) {
+            this.rotationAmt = this.rotationAmtStart;
+        }
         this.moveDirLR = dir;
     }
 
     rotate() {
+        if (this.rotationAmt < this.rotationAmtTop) {
+            this.rotationAmt += .1;
+        }
+
         if (this.moveDirLR === 'left') {
             this.rotation -= this.rotationAmt;
             this.angle -= this.rotationAmt;
@@ -80,6 +89,9 @@ export default class LightSource {
     }
 
     setMoveDir(dir) {
+        if (this.moveDirFB === null) {
+            this.moveAmt = this.moveAmtStart;
+        }
         this.moveDirFB = dir;
     }
 
@@ -102,6 +114,10 @@ export default class LightSource {
         // if (angle <= 90 || angle >= 270) {
         //     inBoundsBottom = true;
         // }
+
+        if (this.moveAmt < this.moveAmtTop) {
+            this.moveAmt += .05;
+        }
 
         const dirRadians = (this.angle) * (Math.PI / 180);
         const moveX = this.moveAmt * Math.cos((90 * (Math.PI / 180)) - dirRadians);
