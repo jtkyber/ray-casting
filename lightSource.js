@@ -11,7 +11,7 @@ export default class LightSource {
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
-        this.moveAmt = 2;
+        this.moveAmt = 2.5;
         this.angle = 90;
         this.rotationAmt = 2;
         this.moveDirFB = null;
