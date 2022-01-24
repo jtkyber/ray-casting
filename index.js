@@ -47,12 +47,14 @@ const beginLoop = (fps) => {
         ctx3d.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
         ctx3d.canvas.height = window.innerHeight;
+        document.body.style.cursor = 'none';
         walls = new Walls(world, 12);
     } else {
         ctx.canvas.width = window.innerWidth / 2.2;
         ctx3d.canvas.width = window.innerWidth / 2.2;
         ctx.canvas.height = window.innerHeight / 1.2;
         ctx3d.canvas.height = window.innerHeight / 1.2;
+        document.body.style.cursor = 'default';
         walls = new Walls(world, 6);
     }
 
@@ -122,16 +124,8 @@ document.addEventListener('keyup', (e) => {
         }
         if (window.getComputedStyle(world).display === 'none') {
             world.style.display = 'block';
-            // ctx.canvas.width = window.innerWidth / 2.2;
-            // ctx3d.canvas.width = window.innerWidth / 2.2;
-            // ctx.canvas.height = window.innerHeight / 1.2;
-            // ctx3d.canvas.height = window.innerHeight / 1.2;
         } else {
             world.style.display = 'none';
-            // ctx.canvas.width = window.innerWidth;
-            // ctx3d.canvas.width = window.innerWidth;
-            // ctx.canvas.height = window.innerHeight;
-            // ctx3d.canvas.height = window.innerHeight;
         }
         beginLoop(60);
     }
