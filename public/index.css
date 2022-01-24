@@ -31,7 +31,12 @@ body {
 }
 
 #world3d {
+    position: relative;
     border: 2px solid rgb(255, 255, 255);
-    background: linear-gradient(0deg, #07110d 60%, #001c3a 0%);
-    background-color: rgba(0, 0, 0, 1);
+    /* background: linear-gradient(0deg, #07110d 60%, #001c3a 0%); */
+
+    background: linear-gradient(0deg, rgb(5, 14, 8) 60%, rgba(0, 0, 0, 0) 0%), url(stars.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
