@@ -2,6 +2,7 @@ export default class Walls {
     constructor(world, wallNum) {
         this.world = world;
         this.lines = [];
+        this.corners = [];
         this.wallNum = wallNum;
         this.minWallWidth = 10;
         this.maxWallWidth = 30
@@ -17,16 +18,36 @@ export default class Walls {
                     y1 = firstY1 = Math.floor(Math.random() * (this.world.height - this.maxWallWidth));
                     x2 = Math.floor(Math.random() * (this.world.width - this.maxWallWidth));
                     y2 = Math.floor(Math.random() * (this.world.height - this.maxWallWidth));   
+
+                    this.corners.push({
+                        x: x1,
+                        y: y1
+                    })
+
+                    this.corners.push({
+                        x: x2,
+                        y: y2
+                    })
                 } else if (j === 1) {
                     x1 = x2;
                     y1 = y2;
                     x2 = x1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
                     y2 = y1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
+
+                    this.corners.push({
+                        x: x2,
+                        y: y2
+                    })
                 } else if (j === 2) {
                     x1 = x2;
                     y1 = y2;
                     x2 = firstX1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
                     y2 = firstY1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
+
+                    this.corners.push({
+                        x: x2,
+                        y: y2
+                    })
                 } else if (j === 3) {
                     x1 = x2;
                     y1 = y2;
@@ -70,7 +91,27 @@ export default class Walls {
             }
         )
 
-        return this.lines;
+        this.corners.push({
+            x: 0,
+            y: 0,
+        })
+
+        this.corners.push({
+            x: 0,
+            y: this.world.height,
+        })
+
+        this.corners.push({
+            x: this.world.width,
+            y: this.world.height,
+        })
+        
+        this.corners.push({
+            x: this.world.width,
+            y: 0,
+        })
+
+        return [this.lines, this.corners];
     }
 
     draw() {
@@ -80,10 +121,16 @@ export default class Walls {
             ctx.beginPath();
             ctx.moveTo(line.x1, line.y1);
             ctx.lineTo(line.x2, line.y2);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "rgba(255,255,255,0.8)";
             ctx.stroke();
-            ctx.lineWidth = 1;
+        }
+
+        for (const corner of this.corners) {;
+            ctx.beginPath();
+            ctx.fillStyle = "rgba(255,0,0,1)";
+            ctx.ellipse(corner.x, corner.y, 2, 2, 0, 0, 2 * Math.PI);
+            ctx.fill();
         }
     }
 }
