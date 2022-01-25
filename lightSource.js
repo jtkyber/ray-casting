@@ -26,7 +26,7 @@ export default class LightSource {
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
-        this.rayDensityAdjustment = 8;
+        this.rayDensityAdjustment = 2;
     }
 
     getMoveDirLR() {

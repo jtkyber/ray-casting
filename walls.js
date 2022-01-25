@@ -3,21 +3,44 @@ export default class Walls {
         this.world = world;
         this.lines = [];
         this.wallNum = wallNum;
+        this.minWallWidth = 10;
+        this.maxWallWidth = 30
     }
 
     build = () => {
         for (let i = 0; i < this.wallNum; i++) {
-            const x1 = Math.floor(Math.random() * this.world.width);
-            const y1 = Math.floor(Math.random() * this.world.height);
-            const x2 = Math.floor(Math.random() * this.world.width);
-            const y2 = Math.floor(Math.random() * this.world.height);
+            let x1, y1, x2, y2;
+            let firstX1, firstY1;
+            for (let j = 0; j < 4; j++) {
+                if (j === 0) {
+                    x1 = firstX1 = Math.floor(Math.random() * (this.world.width - this.maxWallWidth));
+                    y1 = firstY1 = Math.floor(Math.random() * (this.world.height - this.maxWallWidth));
+                    x2 = Math.floor(Math.random() * (this.world.width - this.maxWallWidth));
+                    y2 = Math.floor(Math.random() * (this.world.height - this.maxWallWidth));   
+                } else if (j === 1) {
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = x1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
+                    y2 = y1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
+                } else if (j === 2) {
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = firstX1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
+                    y2 = firstY1 + Math.floor(Math.random() * (this.maxWallWidth - this.minWallWidth) + this.minWallWidth);
+                } else if (j === 3) {
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = firstX1;
+                    y2 = firstY1;
+                }
 
-            this.lines.push({
-                x1: x1,
-                y1: y1,
-                x2: x2,
-                y2: y2
-            })
+                this.lines.push({
+                    x1: x1,
+                    y1: y1,
+                    x2: x2,
+                    y2: y2
+                })
+            }
         }
 
         this.lines.push(

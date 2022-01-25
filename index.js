@@ -16,6 +16,8 @@ ctx3d.canvas.height = window.innerHeight / 1.2;
 
 let fpsInterval, now, then, elapsed, requestID;
 
+const fps = 75;
+
 let walls;
 let lightSource;
 
@@ -34,8 +36,7 @@ const gameLoop = () => {
         ctx3d.clearRect(0, 0, world3d.width, world3d.height);
         walls.draw();
 
-        bgTopImg.width = world3d.width * 2;
-        bgTopImg.height = world3d.height;
+        bgTopImg.width = world3d.width * 4;
 
         if (lightSource.moveDirLR === 'left') {
             bgTopX += (bgTopImg.width / 360) * lightSource.rotationAmt;
@@ -51,7 +52,7 @@ const gameLoop = () => {
 
         ctx3d.drawImage(bgTopImg, bgTopX, 0, bgTopImg.width, world3d.height * 0.4);
         ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, 0, bgTopImg.width, world3d.height * 0.4);
-        ctx3d.fillStyle = `rgba(0,0,0,0.5)`;
+        ctx3d.fillStyle = `rgba(0,0,0,0.6)`;
         ctx3d.fillRect(0, 0, world3d.width, world3d.height * 0.4);
 
         lightSource.draw(); 
@@ -74,14 +75,14 @@ const beginLoop = (fps) => {
         ctx.canvas.height = window.innerHeight;
         ctx3d.canvas.height = window.innerHeight;
         document.body.style.cursor = 'none';
-        walls = new Walls(world, 12);
+        walls = new Walls(world, 10);
     } else {
         ctx.canvas.width = window.innerWidth / 2.2;
         ctx3d.canvas.width = window.innerWidth / 2.2;
         ctx.canvas.height = window.innerHeight / 1.2;
         ctx3d.canvas.height = window.innerHeight / 1.2;
         document.body.style.cursor = 'default';
-        walls = new Walls(world, 6);
+        walls = new Walls(world, 5);
     }
 
     const allWalls = walls.build();
@@ -92,7 +93,7 @@ const beginLoop = (fps) => {
 }
 
 window.onload = () => {
-    beginLoop(60);
+    beginLoop(fps);
 }
 
 document.addEventListener('mousemove', (e) => {
@@ -153,6 +154,6 @@ document.addEventListener('keyup', (e) => {
         } else {
             world.style.display = 'none';
         }
-        beginLoop(60);
+        beginLoop(fps);
     }
 })
