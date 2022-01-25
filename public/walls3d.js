@@ -6,19 +6,22 @@ export default class Walls3d {
         this.world3dDiag = Math.sqrt(Math.pow(world3d.width, 2) + Math.pow(world3d.height, 2));
         this.wallTexture = new Image();
         this.wallTexture.src = './wallTexture.jpg';
+        this.worldHalfHeight = world3d.height / 2;
         // this.wallTexturePattern = this.ctx.createPattern(this.wallTexture, 'repeat');
     }
 
-    draw(walls) {
+    draw(walls, lengthsToCorner) {
         const rayNum = walls.length;
         let wallX = 0;
+        let cornerPoint = null;
+        
         for (const wall of walls) {
             let wallWidth = this.world3d.width / rayNum;
             const wallWidthOversized = wallWidth + 1;
 
             const fovRad = this.fov * (Math.PI / 180);
-            const wallShiftAmt = (this.world3d.height / 2) / 4;
-            const wallStartTop = ((this.world3d.height / 2) - 30000 / wall) - wallShiftAmt;
+            const wallShiftAmt = (this.worldHalfHeight) / 4;
+            const wallStartTop = ((this.worldHalfHeight) - (this.world3d.height * 50) / wall) - wallShiftAmt;
             const wallEndBottom = this.world3d.height - wallStartTop - wallShiftAmt;
 
             let wallDarkness = wall / this.world3d.height;
@@ -26,8 +29,11 @@ export default class Walls3d {
 
             const wallGradient = this.ctx.createLinearGradient(wallX + wallWidthOversized / 2, wallEndBottom, wallX + wallWidthOversized / 2, wallStartTop);
             wallGradient.addColorStop(0, `rgba(${75 * wallDarkness},${75 * wallDarkness},${75 * wallDarkness},1)`);
-            // wallGradient.addColorStop(0.5, `rgba(${255 * wallDarkness},${255 * wallDarkness},${255 * wallDarkness},1)`);
             wallGradient.addColorStop(1, `rgba(${255 * wallDarkness},${255 * wallDarkness},${255 * wallDarkness},1)`);
+
+            const cornerGradient = this.ctx.createLinearGradient(wallX, wallStartTop, wallX, wallEndBottom);
+            cornerGradient.addColorStop(0, `rgba(${50 * wallDarkness},${50 * wallDarkness},${50 * wallDarkness},1)`);
+            cornerGradient.addColorStop(1, `rgba(${0 * wallDarkness},${0 * wallDarkness},${0 * wallDarkness},1)`);
             
             this.ctx.fillStyle = wallGradient;
             this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, wallEndBottom - wallStartTop);
@@ -35,6 +41,17 @@ export default class Walls3d {
             this.ctx.fillStyle = 'rgba(0, 150, 255, 1)';
             this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, 2);
             this.ctx.fillRect(wallX, wallEndBottom, wallWidthOversized, 2);
+
+            for (const lengthToCorner of lengthsToCorner) {
+                if (lengthToCorner === wall) {
+                    this.ctx.lineWidth = 1;
+                    this.ctx.strokeStyle = cornerGradient;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(wallX, wallStartTop);
+                    this.ctx.lineTo(wallX, wallEndBottom);
+                    this.ctx.stroke();
+                }
+            }
 
             wallX += wallWidth;
         }

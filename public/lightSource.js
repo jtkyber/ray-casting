@@ -1,10 +1,12 @@
 import Walls3d from "./walls3d.js";
 
 export default class LightSource {
-    constructor(world, world3d, allWalls) {
+    constructor(world, world3d, allWalls, allCorners) {
         this.world = world;
         this.world3d = world3d;
         this.allWalls = allWalls;
+        this.allCorners = allCorners;
+        this.cornersInView = [];
         this.allWalls3d = [];
         this.rayIncrement = 0.2;
         this.rayOpacity = 0.17;
@@ -175,12 +177,14 @@ export default class LightSource {
     draw(x = this.playerX, y = this.playerY) {
         const ctx = world.getContext('2d');
         this.allWalls3d = [];
+        this.cornersInView = [];
         const rotation = ((this.rotation % 360) + 360) % 360;
         
         for (let i = 0; i < this.rayAngles.length; i ++) {
             const r = 1;
             let closest = null;
             let record = Infinity;
+            let recordCornerRayDiff = Infinity;
             
             for (const wall of this.allWalls) {
                 const intersection = this.getIntersection(x, y, r, this.rayAngles[i], wall, rotation);
@@ -203,12 +207,31 @@ export default class LightSource {
                 ctx.strokeStyle = `rgba(255,255,255,${this.rayOpacity})`;
                 ctx.lineWidth = 1;
                 ctx.stroke();
+
+                for (const corner of this.allCorners) {
+                    const cornerDx = Math.abs(x - corner.x);
+                    const cornerDy = Math.abs(y - corner.y);
+                    const cornerD = Math.sqrt(cornerDx * cornerDx + cornerDy * cornerDy);
+
+                    const cornerRayDiff = Math.abs(cornerD - record);
+                    if ((closest[0] > corner.x - 3 && closest[0] < corner.x + 3) && (closest[1] > corner.y - 3 && closest[1] < corner.y + 3)) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(corner.x, corner.y);
+                        ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        this.cornersInView.push(record);
+                        break;
+                    } 
+                }
+
                 this.allWalls3d.push(record);
             } else {
                 this.allWalls3d.push(Infinity);
             }
         }
 
-        this.walls3d.draw(this.allWalls3d);
+        this.walls3d.draw(this.allWalls3d, this.cornersInView);
     }
 }

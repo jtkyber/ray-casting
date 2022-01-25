@@ -59,9 +59,10 @@ const gameLoop = () => {
         lightSource.rotate();
         lightSource.move();
 
-        ctx3d.beginPath();
         ctx3d.strokeStyle = `rgba(255,0,0,1)`;
-        ctx3d.ellipse(world3d.width/2, world3d.height/2, 3, 3, 2 * Math.PI, 0, 2 * Math.PI);
+        ctx3d.lineWidth = 2;
+        ctx3d.beginPath();
+        ctx3d.ellipse(world3d.width/2, world3d.height/2, 3, 3, 0, 0, 2 * Math.PI);
         ctx3d.stroke();
     }
 }
@@ -86,7 +87,7 @@ const beginLoop = (fps) => {
     }
 
     const allWalls = walls.build();
-    lightSource = new LightSource(world, world3d, allWalls);
+    lightSource = new LightSource(world, world3d, allWalls[0], allWalls[1]);
     lightSource.setAngles();
 
     gameLoop();
