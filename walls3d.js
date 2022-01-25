@@ -10,7 +10,6 @@ export default class Walls3d {
     }
 
     draw(walls) {
-        this.ctx.clearRect(0, 0, this.world3d.width, this.world3d.height);
         const rayNum = walls.length;
         let wallX = 0;
         for (const wall of walls) {
