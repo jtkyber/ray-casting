@@ -63,9 +63,4 @@ export default class Walls {
             ctx.lineWidth = 1;
         }
     }
-
-    clear() {
-        const ctx = this.world.getContext('2d');
-        ctx.clearRect(0, 0, this.world.width, this.world.height);
-    }
 }

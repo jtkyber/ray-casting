@@ -6,6 +6,9 @@ const world3d = document.getElementById('world3d');
 const ctx = world.getContext('2d');
 const ctx3d = world3d.getContext('2d');
 
+const bgTopImg = new Image();
+bgTopImg.src = './stars.jpg'
+
 ctx.canvas.width = window.innerWidth / 2.2;
 ctx3d.canvas.width = window.innerWidth / 2.2;
 ctx.canvas.height = window.innerHeight / 1.2;
@@ -16,6 +19,8 @@ let fpsInterval, now, then, elapsed, requestID;
 let walls;
 let lightSource;
 
+let bgTopX = 0;
+
 const gameLoop = () => {
     requestID = requestAnimationFrame(gameLoop);
 
@@ -25,10 +30,31 @@ const gameLoop = () => {
     if (elapsed > fpsInterval) {
         then = now - (elapsed % fpsInterval);
 
-        walls.clear();
+        ctx.clearRect(0, 0, world.width, world.height);
+        ctx3d.clearRect(0, 0, world3d.width, world3d.height);
         walls.draw();
 
-        lightSource.draw();
+        bgTopImg.width = world3d.width * 2;
+        bgTopImg.height = world3d.height;
+
+        if (lightSource.moveDirLR === 'left') {
+            bgTopX += (bgTopImg.width / 360) * lightSource.rotationAmt;
+        } else if (lightSource.moveDirLR === 'right') {
+            bgTopX -= (bgTopImg.width / 360) * lightSource.rotationAmt;
+        }
+        
+        if (bgTopX > 0) {
+            bgTopX = -(bgTopImg.width);
+        } else if (bgTopX < -(bgTopImg.width)) {
+            bgTopX = 0;
+        }
+
+        ctx3d.drawImage(bgTopImg, bgTopX, 0, bgTopImg.width, world3d.height * 0.4);
+        ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, 0, bgTopImg.width, world3d.height * 0.4);
+        ctx3d.fillStyle = `rgba(0,0,0,0.5)`;
+        ctx3d.fillRect(0, 0, world3d.width, world3d.height * 0.4);
+
+        lightSource.draw(); 
         lightSource.rotate();
         lightSource.move();
 

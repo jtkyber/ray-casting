@@ -29,6 +29,10 @@ export default class LightSource {
         this.rayDensityAdjustment = 8;
     }
 
+    getMoveDirLR() {
+        return this.moveDirLR;
+    }
+
     setWalls(walls) {
         this.allWalls = walls;
     }
@@ -206,10 +210,5 @@ export default class LightSource {
         }
 
         this.walls3d.draw(this.allWalls3d);
-    }
-
-    clear() {
-        const ctx = this.world.getContext('2d');
-        ctx.clearRect(0, 0, this.world.width, this.world.height);
     }
 }
