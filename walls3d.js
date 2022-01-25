@@ -10,22 +10,22 @@ export default class Walls3d {
         // this.wallTexturePattern = this.ctx.createPattern(this.wallTexture, 'repeat');
     }
 
-    draw(walls, lengthsToCorner) {
-        const rayNum = walls.length;
+    draw(rays, lengthsToCorner) {
+        const rayNum = rays.length;
         let wallX = 0;
         let cornerPoint = null;
         
-        for (const wall of walls) {
+        for (const ray of rays) {
             let wallWidth = this.world3d.width / rayNum;
             const wallWidthOversized = wallWidth + 1;
 
             const fovRad = this.fov * (Math.PI / 180);
             const wallShiftAmt = (this.worldHalfHeight) / 4;
-            const wallStartTop = ((this.worldHalfHeight) - (this.world3d.height * 50) / wall) - wallShiftAmt;
+            const wallStartTop = ((this.worldHalfHeight) - (this.world3d.height * 50) / ray) - wallShiftAmt;
             const wallEndBottom = this.world3d.height - wallStartTop - wallShiftAmt;
 
-            let wallDarkness = wall / this.world3d.height;
-            wallDarkness = ((this.world3dDiag - wall) / this.world3dDiag);
+            let wallDarkness = ray / this.world3d.height;
+            wallDarkness = ((this.world3dDiag - ray) / this.world3dDiag);
 
             const wallGradient = this.ctx.createLinearGradient(wallX + wallWidthOversized / 2, wallEndBottom, wallX + wallWidthOversized / 2, wallStartTop);
             wallGradient.addColorStop(0, `rgba(${75 * wallDarkness},${75 * wallDarkness},${75 * wallDarkness},1)`);
@@ -43,7 +43,7 @@ export default class Walls3d {
             this.ctx.fillRect(wallX, wallEndBottom, wallWidthOversized, 2);
 
             for (const lengthToCorner of lengthsToCorner) {
-                if (lengthToCorner === wall) {
+                if (lengthToCorner === ray) {
                     this.ctx.lineWidth = 1;
                     this.ctx.strokeStyle = cornerGradient;
                     this.ctx.beginPath();
