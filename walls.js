@@ -9,7 +9,7 @@ export default class Walls {
     }
 
     pointIsBetween(x1, y1, x2, y2, px, py) {
-        return ((px > Math.min(x1, x2)) && (px < Math.max(x1, x2)) && (py > Math.min(y1, y2)) && (px < Math.max(y1, y2)));
+        return ((px > Math.min(x1, x2)) && (px < Math.max(x1, x2)) && (py > Math.min(y1, y2)) && (py < Math.max(y1, y2)));
     }
 
     getIntersection = (x1, y1, x2, y2) => {
