@@ -121,7 +121,7 @@ export default class LightSource {
 
     move() {
         if ((this.moveAmt < this.moveAmtTop)) {
-            if (this.fullscreen) {
+            if (!this.fullscreen) {
                 this.moveAmt += .05;
             } else {
                 this.moveAmt = this.moveAmtTop;
