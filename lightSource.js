@@ -7,7 +7,13 @@ export default class LightSource {
         this.allWalls = allWalls;
         this.allCorners = allCorners;
         this.cornersInView = [];
-        this.allWalls3d = [];
+        this.allRays = [];
+        this.moveDirRays = {
+            foreward: Infinity,
+            left: Infinity,
+            right: Infinity,
+            backward: Infinity
+        };
         this.rayIncrement = 0.2;
         this.rayOpacity = 0.17;
         this.fov = 45;
@@ -29,7 +35,7 @@ export default class LightSource {
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
-        this.rayDensityAdjustment = 2;
+        this.rayDensityAdjustment = 3;
         this.fullscreen = false;
     }
 
@@ -128,24 +134,24 @@ export default class LightSource {
             }
         }
 
-        let inBoundsLeft = (this.playerX > 5);
-        let inBoundsRight = (this.playerX < this.world.width - 5);
-        let inBoundsTop = (this.playerY > 5);
-        let inBoundsBottom = (this.playerY < this.world.height - 5);
-        let angle = ((this.angle % 360) + 360) % 360;
+        // let inBoundsLeft = (this.playerX > 5);
+        // let inBoundsRight = (this.playerX < this.world.width - 5);
+        // let inBoundsTop = (this.playerY > 5);
+        // let inBoundsBottom = (this.playerY < this.world.height - 5);
+        // let angle = ((this.angle % 360) + 360) % 360;
 
-        if (angle <= 180 && angle >= 0) {
-            inBoundsLeft = true;
-        }
-        if (angle <= 360 && angle >= 180) {
-            inBoundsRight = true;
-        }
-        if (angle <= 270 && angle >= 90) {
-            inBoundsTop = true;
-        }
-        if (angle <= 90 || angle >= 270) {
-            inBoundsBottom = true;
-        }
+        // if (angle <= 180 && angle >= 0) {
+        //     inBoundsLeft = true;
+        // }
+        // if (angle <= 360 && angle >= 180) {
+        //     inBoundsRight = true;
+        // }
+        // if (angle <= 270 && angle >= 90) {
+        //     inBoundsTop = true;
+        // }
+        // if (angle <= 90 || angle >= 270) {
+        //     inBoundsBottom = true;
+        // }
 
         const dirRadians = (this.angle) * (Math.PI / 180);
         const moveX = this.moveAmt * Math.cos((90 * (Math.PI / 180)) - dirRadians);
@@ -155,41 +161,46 @@ export default class LightSource {
         const strafeX = this.moveAmt * Math.cos((90 * (Math.PI / 180)) - dirRadiansStrafe) / 2;
         const strafeY = this.moveAmt * Math.cos(dirRadiansStrafe) / 2;
 
+        const hittingF = this.moveDirRays.foreward < 5;
+        const hittingL = this.moveDirRays.left < 5;
+        const hittingR = this.moveDirRays.right < 5;
+        const hittingB = this.moveDirRays.backward < 5;
+
         if (this.moveDirFB === 'forwards') {
-            // if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
+            // if (this.allRays[Math.floor(this.allRays.length / 2)] > 5) {
             //     this.playerX += moveX;
             // }
-            // if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
+            // if (this.allRays[Math.floor(this.allRays.length / 2)] > 5) {
             //     this.playerY -= moveY;
             // }
 
-            if (inBoundsLeft && inBoundsRight) {
+            if (!hittingF) {
                 this.playerX += moveX;
             }
-            if (inBoundsTop && inBoundsBottom) {
+            if (!hittingF) {
                 this.playerY -= moveY;
             }
         } else if (this.moveDirFB === 'backwards') {
-            if (true) {
+            if (!hittingB) {
                 this.playerX -= moveX;
             }
-            if (true) {
+            if (!hittingB) {
                 this.playerY += moveY;
             }
         }
 
         if (this.moveDirStrafe === 'left') {
-            if (true) {
+            if (!hittingL) {
                 this.playerX -= strafeX;
             }
-            if (true) {
+            if (!hittingL) {
                 this.playerY += strafeY;
             }
         } else if (this.moveDirStrafe === 'right') {
-            if (true) {
+            if (!hittingR) {
                 this.playerX += strafeX;
             }
-            if (true) {
+            if (!hittingR) {
                 this.playerY -= strafeY;
             }
         }
@@ -225,18 +236,21 @@ export default class LightSource {
 
     draw(x = this.playerX, y = this.playerY) {
         const ctx = world.getContext('2d');
-        this.allWalls3d = [];
+        const r = 1;
+        this.allRays = [];
         this.cornersInView = [];
         const rotation = ((this.rotation % 360) + 360) % 360;
+        // let moveDirRaysFound = false;
+        const middleRayAngle = this.rayAngles[Math.floor(this.rayAngles.length / 2)];
         
         for (let i = 0; i < this.rayAngles.length; i ++) {
-            const r = 1;
             let closest = null;
             let record = Infinity;
             let recordCornerRayDiff = Infinity;
             
             for (const wall of this.allWalls) {
                 const intersection = this.getIntersection(x, y, r, this.rayAngles[i], wall, rotation);
+
                 if (intersection) {
                     const dx = Math.abs(x - intersection[0]);
                     const dy = Math.abs(y - intersection[1]);
@@ -275,12 +289,106 @@ export default class LightSource {
                     } 
                 }
 
-                this.allWalls3d.push(record);
+                this.allRays.push(record);
             } else {
-                this.allWalls3d.push(Infinity);
+                this.allRays.push(Infinity);
             }
         }
 
-        this.walls3d.draw(this.allWalls3d, this.cornersInView);
+        //get lengths for rays going in directions that the player can move in (F,B,L,R)
+        const rotationF = ((this.rotation % 360) + 360) % 360;
+        const rotationL = (((this.rotation - 90) % 360) + 360) % 360;
+        const rotationR = (((this.rotation + 90) % 360) + 360) % 360;
+        const rotationB = (((this.rotation + 180) % 360) + 360) % 360;
+
+        let closestF = null;
+        let recordF = Infinity;
+
+        let closestL = null;
+        let recordL = Infinity;
+
+        let closestR = null;
+        let recordR = Infinity;
+
+        let closestB = null;
+        let recordB = Infinity;
+        
+        for (const wall of this.allWalls) {
+            const fIntersection = this.getIntersection(x, y, r, 0, wall, rotationF);
+            const lIntersection = this.getIntersection(x, y, r, 0, wall, rotationL);
+            const rIntersection = this.getIntersection(x, y, r, 0, wall, rotationR);
+            const bIntersection = this.getIntersection(x, y, r, 0, wall, rotationB);
+
+            if (fIntersection) {
+                const dx = Math.abs(x - fIntersection[0]);
+                const dy = Math.abs(y - fIntersection[1]);
+                const d = Math.sqrt(dx * dx + dy * dy);
+
+                recordF = Math.min(d, recordF);
+                if (d <= recordF) {
+                    recordF = d;
+                    closestF = fIntersection;
+                }
+            }
+            if (lIntersection) {
+                const dx = Math.abs(x - lIntersection[0]);
+                const dy = Math.abs(y - lIntersection[1]);
+                const d = Math.sqrt(dx * dx + dy * dy);
+
+                recordL = Math.min(d, recordL);
+                if (d <= recordL) {
+                    recordL = d;
+                    closestL = lIntersection;
+                }
+            }
+            if (rIntersection) {
+                const dx = Math.abs(x - rIntersection[0]);
+                const dy = Math.abs(y - rIntersection[1]);
+                const d = Math.sqrt(dx * dx + dy * dy);
+
+                recordR = Math.min(d, recordR);
+                if (d <= recordR) {
+                    recordR = d;
+                    closestR = rIntersection;
+                }
+            }
+            if (bIntersection) {
+                const dx = Math.abs(x - bIntersection[0]);
+                const dy = Math.abs(y - bIntersection[1]);
+                const d = Math.sqrt(dx * dx + dy * dy);
+
+                recordB = Math.min(d, recordB);
+                if (d <= recordB) {
+                    recordB = d;
+                    closestB = bIntersection;
+                }
+            }
+        }
+
+        if (closestF) {
+            this.moveDirRays.foreward = recordF;
+        } else {
+            this.moveDirRays.foreward = Infinity;
+        }
+        
+        if (closestL) {
+            this.moveDirRays.left = recordL;
+        } else {
+            this.moveDirRays.left = Infinity;
+        }
+
+        if (closestR) {
+            this.moveDirRays.right = recordR;
+        } else {
+            this.moveDirRays.right = Infinity;
+        }
+
+        if (closestB) {
+            this.moveDirRays.backward = recordB;
+        } else {
+            this.moveDirRays.backward = Infinity;
+        }
+
+        this.walls3d.draw(this.allRays, this.cornersInView);
     }
 }
