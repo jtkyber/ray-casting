@@ -10,7 +10,7 @@ export default class LightSource {
         this.allWalls3d = [];
         this.rayIncrement = 0.2;
         this.rayOpacity = 0.17;
-        this.fov = 60;
+        this.fov = 45;
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
@@ -23,12 +23,18 @@ export default class LightSource {
         this.rotationAmtTop = 2
         this.moveDirFB = null;
         this.moveDirLR = null;
+        this.moveDirStrafe = null;
         this.walls3d = new Walls3d(world3d, this.fov);
         this.flashlight = document.querySelector('.flashlight');
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
         this.rayDensityAdjustment = 2;
+        this.fullscreen = false;
+    }
+
+    setFullscreen(isFS) {
+        this.fullscreen = isFS;
     }
 
     getMoveDirLR() {
@@ -80,6 +86,11 @@ export default class LightSource {
         this.moveDirLR = dir;
     }
 
+    setMouseRotation(amt) {
+        this.rotation += amt;
+        this.angle += amt;
+    }
+
     rotate() {
         if (this.rotationAmt < this.rotationAmtTop) {
             this.rotationAmt += .1;
@@ -101,48 +112,86 @@ export default class LightSource {
         this.moveDirFB = dir;
     }
 
+    setStrafeDir(dir) {
+        if (this.moveDirStrafe === null) {
+            this.moveAmt = this.moveAmtStart;
+        }
+        this.moveDirStrafe = dir;
+    }
+
     move() {
-        // let inBoundsLeft = (this.playerX > 5);
-        // let inBoundsRight = (this.playerX < this.world.width - 5);
-        // let inBoundsTop = (this.playerY > 5);
-        // let inBoundsBottom = (this.playerY < this.world.height - 5);
-        // let angle = ((this.angle % 360) + 360) % 360;
+        if ((this.moveAmt < this.moveAmtTop)) {
+            if (this.fullscreen) {
+                this.moveAmt += .05;
+            } else {
+                this.moveAmt = this.moveAmtTop;
+            }
+        }
 
-        // if (angle <= 180 && angle >= 0) {
-        //     inBoundsLeft = true;
-        // }
-        // if (angle <= 360 && angle >= 180) {
-        //     inBoundsRight = true;
-        // }
-        // if (angle <= 270 && angle >= 90) {
-        //     inBoundsTop = true;
-        // }
-        // if (angle <= 90 || angle >= 270) {
-        //     inBoundsBottom = true;
-        // }
+        let inBoundsLeft = (this.playerX > 5);
+        let inBoundsRight = (this.playerX < this.world.width - 5);
+        let inBoundsTop = (this.playerY > 5);
+        let inBoundsBottom = (this.playerY < this.world.height - 5);
+        let angle = ((this.angle % 360) + 360) % 360;
 
-        if (this.moveAmt < this.moveAmtTop) {
-            this.moveAmt += .05;
+        if (angle <= 180 && angle >= 0) {
+            inBoundsLeft = true;
+        }
+        if (angle <= 360 && angle >= 180) {
+            inBoundsRight = true;
+        }
+        if (angle <= 270 && angle >= 90) {
+            inBoundsTop = true;
+        }
+        if (angle <= 90 || angle >= 270) {
+            inBoundsBottom = true;
         }
 
         const dirRadians = (this.angle) * (Math.PI / 180);
         const moveX = this.moveAmt * Math.cos((90 * (Math.PI / 180)) - dirRadians);
         const moveY = this.moveAmt * Math.cos(dirRadians);
 
+        const dirRadiansStrafe = dirRadians + Math.PI / 2;
+        const strafeX = this.moveAmt * Math.cos((90 * (Math.PI / 180)) - dirRadiansStrafe) / 2;
+        const strafeY = this.moveAmt * Math.cos(dirRadiansStrafe) / 2;
+
         if (this.moveDirFB === 'forwards') {
-            if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
+            // if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
+            //     this.playerX += moveX;
+            // }
+            // if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
+            //     this.playerY -= moveY;
+            // }
+
+            if (inBoundsLeft && inBoundsRight) {
                 this.playerX += moveX;
             }
-            if (this.allWalls3d[Math.floor(this.allWalls3d.length / 2)] > 5) {
-                this.playerY += -moveY;
+            if (inBoundsTop && inBoundsBottom) {
+                this.playerY -= moveY;
             }
         } else if (this.moveDirFB === 'backwards') {
-            // if (true) {
-            //     this.playerX += -moveX;
-            // }
-            // if (true) {
-            //     this.playerY += moveY;
-            // }
+            if (true) {
+                this.playerX -= moveX;
+            }
+            if (true) {
+                this.playerY += moveY;
+            }
+        }
+
+        if (this.moveDirStrafe === 'left') {
+            if (true) {
+                this.playerX -= strafeX;
+            }
+            if (true) {
+                this.playerY += strafeY;
+            }
+        } else if (this.moveDirStrafe === 'right') {
+            if (true) {
+                this.playerX += strafeX;
+            }
+            if (true) {
+                this.playerY -= strafeY;
+            }
         }
     }
 

@@ -16,6 +16,8 @@ ctx3d.canvas.height = window.innerHeight / 1.2;
 
 let fpsInterval, now, then, elapsed, requestID;
 
+let fullscreen = false;
+
 const fps = 75;
 
 let walls;
@@ -70,19 +72,21 @@ const beginLoop = (fps) => {
     fpsInterval = 1000 / fps;
     then = Date.now();
 
-    if (window.getComputedStyle(world).display === 'none') {
+    if (fullscreen) {
+        world3d.requestPointerLock = world3d.requestPointerLock || world3d.mozRequestPointerLock || world3d.webkitRequestPointerLock;
+        world3d.requestPointerLock();
         ctx.canvas.width = window.innerWidth;
         ctx3d.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
         ctx3d.canvas.height = window.innerHeight;
-        document.body.style.cursor = 'none';
         walls = new Walls(world, 10);
     } else {
+        document.exitPointerLock  = document.exitPointerLock || document.mozExitPointerLock  || document.webkitExitPointerLock;
+        document.exitPointerLock();
         ctx.canvas.width = window.innerWidth / 2.2;
         ctx3d.canvas.width = window.innerWidth / 2.2;
         ctx.canvas.height = window.innerHeight / 1.2;
         ctx3d.canvas.height = window.innerHeight / 1.2;
-        document.body.style.cursor = 'default';
         walls = new Walls(world, 5);
     }
 
@@ -101,6 +105,12 @@ document.addEventListener('mousemove', (e) => {
     // const playerX = e.clientX - (document.querySelector('#world').getBoundingClientRect().left - document.querySelector('body').getBoundingClientRect().left);
     // const playerY = e.clientY - (document.querySelector('#world').getBoundingClientRect().top - document.querySelector('body').getBoundingClientRect().top);
     // lightSource.setPlayerPos(playerX, playerY);
+
+    if (fullscreen) {
+        lightSource.setMouseRotation(e.movementX / 20);
+        bgTopX -= (bgTopImg.width / 360) * e.movementX / 20;
+    }
+
 })
 
 document.addEventListener('keydown', (e) => {
@@ -122,16 +132,30 @@ document.addEventListener('keydown', (e) => {
         lightSource.setMoveDir('backwards');
     }
 
-    if (e.code === 'KeyA') {
-        lightSource.setRotation('left');
-    } else if (e.code === 'KeyD') {
-        lightSource.setRotation('right');
+    if (fullscreen) {
+        if (e.code === 'KeyA') {
+            lightSource.setStrafeDir('left');
+        } else if (e.code === 'KeyD') {
+            lightSource.setStrafeDir('right');
+        }
+    } else {
+        if (e.code === 'KeyA') {
+            lightSource.setRotation('left');
+        } else if (e.code === 'KeyD') {
+            lightSource.setRotation('right');
+        }
     }
 })
 
 document.addEventListener('keyup', (e) => {
-    if ((e.code === 'KeyA') || (e.code === 'KeyD')) {
-        lightSource.setRotation(null);
+    if (fullscreen) {
+        if ((e.code === 'KeyA') || (e.code === 'KeyD')) {
+            lightSource.setStrafeDir(null);
+        }
+    } else {
+        if ((e.code === 'KeyA') || (e.code === 'KeyD')) {
+            lightSource.setRotation(null);
+        }
     } 
 
     if ((e.code === 'KeyW') || (e.code === 'KeyS')) {
@@ -155,6 +179,8 @@ document.addEventListener('keyup', (e) => {
         } else {
             world.style.display = 'none';
         }
+        fullscreen = !fullscreen;
+        lightSource.setFullscreen(fullscreen);
         beginLoop(fps);
     }
 })
