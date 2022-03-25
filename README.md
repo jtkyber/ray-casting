@@ -9,3 +9,5 @@ Creates a pseudo-3D representation of a 2D room (with randomly generated walls) 
 * Press the 'space' key to randomize walls
 * Press the 'enter' key to toggle fullscreen view and controls
 * In fullscreen mode, the 'a' and 'd' keys control left and right strafing, the mouse controls left and right panning, and everything else is the same
+
+#### _Note: Make sure to refresh the page after resizing the window_
