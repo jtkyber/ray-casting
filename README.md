@@ -1,5 +1,5 @@
 # ray-casting
-Creates a pseudo-3D representation of a 2D room (with randomly generated walls) based on the length of individual lines (rays) casted from the player in the 2D room to an intersection point on one of the walls
+Creates a pseudo-3D representation of a 2D room (with randomly generated walls) based on the length of individual lines (rays) cast from the player in the 2D room to an intersection point on one of the walls
 ### Controls
 * Press the 'w' and 's' keys to move forward and backward
 * Press the 'a' and 'd' keys to pan left and right
