@@ -10,9 +10,31 @@
 </head>
 <body>
     <div class="container">
-        <canvas id='world' width="600" height="600"></canvas>
+        <div class="settings">
+            <div class="sliderContainer">
+                <h5>Quality</h5>
+                <input type="range" min="1" max="99" value="88" id="quality">
+                <h5 id="qualityValue">88</h5>
+            </div>
+            <div class="sliderContainer">
+                <h5>FOV</h5>
+                <input type="range" min="1" max="170" value="45" id="fov">
+                <h5 id="fovValue">45</h5>
+            </div>
+            <div class="btnContainer">
+                <button id="resetSettingsBtn">Reset</button>
+            </div>
+
+            <button id="settingsBtn">Settings</button>
+        </div>
+        <div class="worldContainer">
+            <canvas id='world3d' width="1280" height="720"></canvas>
+        </div>
+        <div class="worldContainer">
+            <canvas id='world' width="1280" height="720"></canvas>
+        </div>
         <!-- <img width="30" height="30" class="flashlight" src="./flashlight.png" alt="flashlight"> -->
-        <canvas id='world3d' width="600" height="600"></canvas>
+        <canvas id='worldCreation' width="1280" height="720"></canvas>
     </div>
 </body>
-</html>
+</html>   

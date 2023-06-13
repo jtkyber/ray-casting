@@ -25,33 +25,34 @@ export default class Walls3d {
             const wallEndBottom = this.world3d.height - wallStartTop - wallShiftAmt;
 
             let wallDarkness = ray / this.world3d.height;
+            // console.log(ray)
             wallDarkness = ((this.world3dDiag - ray) / this.world3dDiag);
 
             const wallGradient = this.ctx.createLinearGradient(wallX + wallWidthOversized / 2, wallEndBottom, wallX + wallWidthOversized / 2, wallStartTop);
             wallGradient.addColorStop(0, `rgba(${75 * wallDarkness},${75 * wallDarkness},${75 * wallDarkness},1)`);
             wallGradient.addColorStop(1, `rgba(${255 * wallDarkness},${255 * wallDarkness},${255 * wallDarkness},1)`);
 
-            const cornerGradient = this.ctx.createLinearGradient(wallX, wallStartTop, wallX, wallEndBottom);
-            cornerGradient.addColorStop(0, `rgba(${50 * wallDarkness},${50 * wallDarkness},${50 * wallDarkness},1)`);
-            cornerGradient.addColorStop(1, `rgba(${0 * wallDarkness},${0 * wallDarkness},${0 * wallDarkness},1)`);
+            // const cornerGradient = this.ctx.createLinearGradient(wallX, wallStartTop, wallX, wallEndBottom);
+            // cornerGradient.addColorStop(0, `rgba(${50 * wallDarkness},${50 * wallDarkness},${50 * wallDarkness},1)`);
+            // cornerGradient.addColorStop(1, `rgba(${0 * wallDarkness},${0 * wallDarkness},${0 * wallDarkness},1)`);
             
             this.ctx.fillStyle = wallGradient;
             this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, wallEndBottom - wallStartTop);
 
             this.ctx.fillStyle = 'rgba(0, 150, 255, 1)';
             this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, 2);
-            this.ctx.fillRect(wallX, wallEndBottom, wallWidthOversized, 2);
+            this.ctx.fillRect(wallX, wallEndBottom, wallWidthOversized, 1);
 
-            for (const lengthToCorner of lengthsToCorner) {
-                if (lengthToCorner === ray) {
-                    this.ctx.lineWidth = 1;
-                    this.ctx.strokeStyle = cornerGradient;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(wallX, wallStartTop);
-                    this.ctx.lineTo(wallX, wallEndBottom);
-                    this.ctx.stroke();
-                }
-            }
+            // for (const lengthToCorner of lengthsToCorner) {
+            //     if (lengthToCorner === ray) {
+            //         this.ctx.lineWidth = 1;
+            //         // this.ctx.strokeStyle = cornerGradient;
+            //         this.ctx.beginPath();
+            //         this.ctx.moveTo(wallX, wallStartTop);
+            //         this.ctx.lineTo(wallX, wallEndBottom);
+            //         this.ctx.stroke();
+            //     }
+            // }
 
             wallX += wallWidth;
         }
