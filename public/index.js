@@ -1,18 +1,31 @@
 import LightSource from './lightSource.js';
 import Walls from './walls.js';
+import Build from './build.js';
+
+const qualitySlider = document.querySelector('#quality');
+const qualityValue = document.querySelector('#qualityValue');
+const fovSlider = document.querySelector('#fov');
+const fovValue = document.querySelector('#fovValue');
+const resetSettingsBtn = document.querySelector('#resetSettingsBtn');
+const settingsBtn = document.querySelector('#settingsBtn');
+const settings = document.querySelector('.settings');
 
 const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
+const worldCreation = document.getElementById('worldCreation');
 const ctx = world.getContext('2d');
 const ctx3d = world3d.getContext('2d');
+const ctxBuild = worldCreation.getContext('2d');
+
+let editMode = false;
 
 const bgTopImg = new Image();
 bgTopImg.src = './stars.jpg'
 
-ctx.canvas.width = window.innerWidth / 2.2;
-ctx3d.canvas.width = window.innerWidth / 2.2;
-ctx.canvas.height = window.innerHeight / 1.2;
-ctx3d.canvas.height = window.innerHeight / 1.2;
+// ctx.canvas.width = window.innerWidth / 2.2;
+// ctx3d.canvas.width = window.innerWidth / 2.2;
+// ctx.canvas.height = window.innerHeight / 1.2;
+// ctx3d.canvas.height = window.innerHeight / 1.2;
 
 let fpsInterval, now, then, elapsed, requestID;
 
@@ -22,6 +35,8 @@ const fps = 75;
 
 let walls;
 let lightSource;
+let build = new Build(worldCreation, world);
+
 let sprinting = false;
 
 let bgTopX = 0;
@@ -38,8 +53,10 @@ const gameLoop = () => {
 
         ctx.clearRect(0, 0, world.width, world.height);
         ctx3d.clearRect(0, 0, world3d.width, world3d.height);
+        ctxBuild.clearRect(0, 0, worldCreation.width, worldCreation.height);
 
         walls.draw();
+        build.draw();
 
         //multiply bg img width by 4 so when you rotate 90deg, you're 1/4th through the img
         bgTopImg.width = world3d.width * 2;
@@ -85,18 +102,24 @@ const beginLoop = (fps) => {
     if (fullscreen) {
         world3d.requestPointerLock = world3d.requestPointerLock || world3d.mozRequestPointerLock || world3d.webkitRequestPointerLock;
         world3d.requestPointerLock();
-        ctx.canvas.width = window.innerWidth;
-        ctx3d.canvas.width = window.innerWidth;
-        ctx.canvas.height = window.innerHeight;
-        ctx3d.canvas.height = window.innerHeight;
+        // ctx.canvas.width = window.innerWidth;
+        // ctx3d.canvas.width = window.innerWidth;
+        // ctx.canvas.height = window.innerHeight;
+        // ctx3d.canvas.height = window.innerHeight;
+        world.classList.add('fullscreen');
+        world3d.classList.add('fullscreen');
         walls = new Walls(world, 10);
     } else {
         document.exitPointerLock  = document.exitPointerLock || document.mozExitPointerLock  || document.webkitExitPointerLock;
         document.exitPointerLock();
-        ctx.canvas.width = window.innerWidth / 2.2;
-        ctx3d.canvas.width = window.innerWidth / 2.2;
-        ctx.canvas.height = window.innerHeight / 1.2;
-        ctx3d.canvas.height = window.innerHeight / 1.2;
+        // ctx.canvas.width = window.innerWidth / 2.2;
+        // ctx3d.canvas.width = window.innerWidth / 2.2;
+        // ctx.canvas.height = window.innerHeight / 1.2;
+        // ctx3d.canvas.height = window.innerHeight / 1.2;
+        // world.classList.remove('fullscreen');
+        // world3d.classList.remove('fullscreen');
+        world.classList.remove('fullscreen');
+        world3d.classList.remove('fullscreen');
         walls = new Walls(world, 5);
     }
 
@@ -105,12 +128,41 @@ const beginLoop = (fps) => {
     lightSource = new LightSource(world, world3d, allWalls[0], allWalls[1]);
     lightSource.setAngles();
 
+    applySavedValues();
+
     gameLoop();
 }
 
 window.onload = () => {
     beginLoop(fps);
 }
+
+function applySavedValues() {
+    const savedFOV = JSON.parse(localStorage.getItem('fov'));
+    const savedRayDensity = JSON.parse(localStorage.getItem('rayDensity'));
+
+    if (savedFOV) {
+        fovValue.innerText = JSON.parse(savedFOV);
+        lightSource.setFov(JSON.parse(savedFOV));
+        fovSlider.value = savedFOV;
+    }
+
+    if (savedRayDensity) {
+        qualityValue.innerText = 100 - JSON.parse(savedRayDensity);
+        lightSource.setRayDensity(JSON.parse(savedRayDensity));
+        qualitySlider.value = 100 - JSON.parse(savedRayDensity);
+    }
+}
+
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'worldCreation') {
+        const canvasPosX = e.clientX - e.target.getBoundingClientRect().x;
+        const canvasPosY = e.clientY - e.target.getBoundingClientRect().y;
+    
+        build.addPoint(canvasPosX, canvasPosY);
+        build.setP2Temp(canvasPosX, canvasPosY);
+    }
+})
 
 document.addEventListener('mousemove', (e) => {
     //Set player angle and bg img position
@@ -119,23 +171,14 @@ document.addEventListener('mousemove', (e) => {
         bgTopX -= (bgTopImg.width / bgTopDividend) * e.movementX / 20;
     }
 
+    if (e.target.id === 'worldCreation') {
+        const canvasPosX = e.clientX - e.target.getBoundingClientRect().x;
+        const canvasPosY = e.clientY - e.target.getBoundingClientRect().y;
+        build.setP2Temp(canvasPosX, canvasPosY);
+    }
 })
 
 document.addEventListener('keydown', (e) => {
-    //Set FOV
-    if (e.code === 'ArrowUp') {
-        lightSource.setFov('up');
-    } else if (e.code === 'ArrowDown') {
-        lightSource.setFov('down');
-    }
-
-    //set ray density
-    if (e.code === 'KeyQ') {
-        lightSource.setRayDensity('q');
-    } else if (e.code === 'KeyE') {
-        lightSource.setRayDensity('e');
-    }
-
     //Sest move forewards and backwards
     if (e.code === 'KeyW') {
         lightSource.setMoveDir('forwards');
@@ -213,4 +256,50 @@ document.addEventListener('keyup', (e) => {
             lightSource.moveAmt = lightSource.moveAmtStart;
         }
     }
+
+    if (e.code === 'KeyB' && !fullscreen) {
+        if (!editMode) {
+            world.style.display = 'none';
+            world3d.style.display = 'none';
+            worldCreation.style.display = 'block';
+            editMode = true;
+        } else {
+            const newWalls = build.getWalls();
+            walls.setWalls(newWalls);
+            lightSource.setWalls(newWalls);
+            world.style.display = 'block';
+            world3d.style.display = 'block';
+            worldCreation.style.display = 'none';
+            editMode = false;
+        }
+    }
 })
+
+// Settings
+
+qualitySlider.oninput = () => {
+    qualityValue.innerText = JSON.parse(qualitySlider.value);
+    lightSource.setRayDensity(100 - JSON.parse(qualitySlider.value));
+}
+
+fovSlider.oninput = () => {
+    fovValue.innerText = JSON.parse(fovSlider.value);
+    lightSource.setFov(JSON.parse(fovSlider.value));
+}
+
+resetSettingsBtn.onclick = () => {
+    const fovReset = 45;
+    const rayDReset = 12;
+
+    fovValue.innerText = fovReset;
+    lightSource.setFov(fovReset);
+    fovSlider.value = fovReset;
+
+    qualityValue.innerText = 100 - rayDReset;
+    lightSource.setRayDensity(rayDReset);
+    qualitySlider.value = 100 - rayDReset;
+}
+
+settingsBtn.onclick = () => {
+    settings.classList.toggle('show');
+}

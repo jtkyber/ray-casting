@@ -15,14 +15,16 @@ export default class LightSource {
             backward: Infinity
         };
         this.rayIncrement = 0.2;
-        this.rayOpacity = 0.17;
+        this.rayOpacity = 0.26;
         this.fov = 45;
         this.rotation = 0;
         this.playerX = world.width / 2;
         this.playerY = world.height / 2;
+        // this.playerX = world.getBoundingClientRect().x;
+        // this.playerY = world.getBoundingClientRect().y;
         this.moveAmtStart = 0.5;
         this.moveAmt = this.moveAmtStart;
-        this.moveAmtTop = 2.5;
+        this.moveAmtTop = 1.5;
         this.angle = 90;
         this.rotationAmtStart = 0.2;
         this.rotationAmt = this.rotationAmtStart;
@@ -35,7 +37,7 @@ export default class LightSource {
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
-        this.rayDensityAdjustment = 3;
+        this.rayDensityAdjustment = 12;
         this.fullscreen = false;
     }
 
@@ -60,29 +62,24 @@ export default class LightSource {
     }
 
     setPlayerPos(playerX, playerY) {
+        // console.log(playerX)
         this.playerX = playerX;
         this.playerY = playerY;
     }
 
-    setFov(arrow) {
-        if (arrow === 'down' && this.fov > 0) {
-            this.fov -= 1;
-        } else if (arrow === 'up' && this.fov < 170) {
-            this.fov += 1;
-        }
+    setFov(value) {
+        this.fov = value;
         this.fovRad = this.fov * (Math.PI / 180);
         this.setAngles();
+        localStorage.setItem('fov', JSON.stringify(value));
     }
 
-    setRayDensity(key) {
-        if (key === 'e' && this.rayDensityAdjustment > 1) {
-            this.rayDensityAdjustment -= 1;
-            this.rayOpacity -= 0.01;
-        } else if (key === 'q' && this.rayDensityAdjustment < 100) {
-            this.rayDensityAdjustment += 1;
-            this.rayOpacity += 0.01;
-        }
+    setRayDensity(value) {
+        this.rayDensityAdjustment = value;
+        this.rayOpacity = value / 100 + 0.14; 
         this.setAngles();
+        localStorage.setItem('rayDensity', JSON.stringify(value));
+
     }
 
     setRotation(dir) {
@@ -263,6 +260,7 @@ export default class LightSource {
                     }
                 }
             }
+
             if (closest) {
                 ctx.beginPath();
                 ctx.moveTo(x, y);
@@ -271,29 +269,30 @@ export default class LightSource {
                 ctx.lineWidth = 1;
                 ctx.stroke();
 
-                for (const corner of this.allCorners) {
-                    const cornerDx = Math.abs(x - corner.x);
-                    const cornerDy = Math.abs(y - corner.y);
-                    const cornerD = Math.sqrt(cornerDx * cornerDx + cornerDy * cornerDy);
+                // for (const corner of this.allCorners) {
+                //     const cornerDx = Math.abs(x - corner.x);
+                //     const cornerDy = Math.abs(y - corner.y);
+                //     const cornerD = Math.sqrt(cornerDx * cornerDx + cornerDy * cornerDy);
 
-                    const cornerRayDiff = Math.abs(cornerD - record);
-                    if ((closest[0] > corner.x - 3 && closest[0] < corner.x + 3) && (closest[1] > corner.y - 3 && closest[1] < corner.y + 3)) {
-                        ctx.beginPath();
-                        ctx.moveTo(x, y);
-                        ctx.lineTo(corner.x, corner.y);
-                        ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
-                        ctx.lineWidth = 2;
-                        ctx.stroke();
-                        this.cornersInView.push(record);
-                        break;
-                    } 
-                }
+                //     const cornerRayDiff = Math.abs(cornerD - record);
+                //     if ((closest[0] > corner.x - 3 && closest[0] < corner.x + 3) && (closest[1] > corner.y - 3 && closest[1] < corner.y + 3)) {
+                //         ctx.beginPath();
+                //         ctx.moveTo(x, y);
+                //         ctx.lineTo(corner.x, corner.y);
+                //         ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
+                //         ctx.lineWidth = 2;
+                //         ctx.stroke();
+                //         this.cornersInView.push(record);
+                //         break;
+                //     } 
+                // }
 
                 this.allRays.push(record);
             } else {
                 this.allRays.push(Infinity);
             }
         }
+
 
         //get lengths for rays going in directions that the player can move in (F,B,L,R)
         const rotationF = ((this.rotation % 360) + 360) % 360;
