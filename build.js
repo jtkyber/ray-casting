@@ -9,6 +9,8 @@ export default class Build {
         this.p2Temp = {};
         this.allPoints = [];
         this.pointColor = 'rgba(255,0,0,1)';
+        this.actualCanvasWidth = 1920;
+        this.actualCanvasHeight = 1200;
     }
 
     getWalls() {
@@ -39,7 +41,19 @@ export default class Build {
             }
         )
 
-        return this.allWalls;
+        return [...this.allWalls];
+    }
+
+    clearWalls() {
+        this.allWalls = [];
+    }
+
+    removeLastWall() {
+        this.allWalls.pop();
+    }
+
+    loadSavedWalls(savedWalls) {
+        this.allWalls = savedWalls;
     }
 
     setP2Temp(x, y) {
@@ -47,8 +61,10 @@ export default class Build {
     }
 
     addPoint(canvasPosX, canvasPosY) {
-        let x = canvasPosX;
-        let y = canvasPosY;
+        const actualToDisplayedRatioX = this.actualCanvasWidth/this.worldCreation.getBoundingClientRect().width;
+        const actualToDisplayedRatioY = this.actualCanvasHeight/this.worldCreation.getBoundingClientRect().height;
+        let x = canvasPosX * actualToDisplayedRatioX;
+        let y = canvasPosY * actualToDisplayedRatioY;
         
         for (let i=0; i<this.allPoints.length; i++) {
             if (Math.abs(x - this.allPoints[i].x) <= 15 && Math.abs(y - this.allPoints[i].y) <= 15) {
@@ -101,9 +117,14 @@ export default class Build {
         }
 
         if (this.p1?.x) {
+            const actualToDisplayedRatioX = this.actualCanvasWidth/this.worldCreation.getBoundingClientRect().width;
+            const actualToDisplayedRatioY = this.actualCanvasHeight/this.worldCreation.getBoundingClientRect().height;
+            let x = this.p2Temp.x * actualToDisplayedRatioX;
+            let y = this.p2Temp.y * actualToDisplayedRatioY;
+
             this.ctx.beginPath();
             this.ctx.moveTo(this.p1.x, this.p1.y);
-            this.ctx.lineTo(this.p2Temp.x, this.p2Temp.y);
+            this.ctx.lineTo(x, y);
             this.ctx.lineWidth = 2;
             this.ctx.strokeStyle = "rgba(255,255,255,0.8)";
             this.ctx.stroke();
