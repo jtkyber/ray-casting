@@ -1,6 +1,7 @@
 import LightSource from './lightSource.js';
 import Walls from './walls.js';
 import Build from './build.js';
+import defaultWalls from './defaultWorld.json' assert { type: 'json'};
 
 const qualitySlider = document.querySelector('#quality');
 const qualityValue = document.querySelector('#qualityValue');
@@ -9,6 +10,12 @@ const fovValue = document.querySelector('#fovValue');
 const resetSettingsBtn = document.querySelector('#resetSettingsBtn');
 const settingsBtn = document.querySelector('#settingsBtn');
 const settings = document.querySelector('.settings');
+const worldCreationContainer = document.querySelector('.worldCreationContainer');
+const wallEditorBtn = document.querySelector('#wallEditorBtn');
+const exitEditorBtn = document.querySelector('#exitEditorBtn');
+const undoBtn = document.querySelector('#undoBtn');
+const clearEditorBtn = document.querySelector('#clearEditorBtn');
+const saveWallsBtn = document.querySelector('#saveWallsBtn');
 
 const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
@@ -106,7 +113,7 @@ const beginLoop = (fps) => {
         // ctx3d.canvas.width = window.innerWidth;
         // ctx.canvas.height = window.innerHeight;
         // ctx3d.canvas.height = window.innerHeight;
-        world.classList.add('fullscreen');
+        world.style.display = 'none';
         world3d.classList.add('fullscreen');
         walls = new Walls(world, 10);
     } else {
@@ -118,14 +125,17 @@ const beginLoop = (fps) => {
         // ctx3d.canvas.height = window.innerHeight / 1.2;
         // world.classList.remove('fullscreen');
         // world3d.classList.remove('fullscreen');
-        world.classList.remove('fullscreen');
+        world.style.display = 'block';
         world3d.classList.remove('fullscreen');
         walls = new Walls(world, 5);
     }
 
     //Get all wall points and corner points
-    const allWalls = walls.build();
-    lightSource = new LightSource(world, world3d, allWalls[0], allWalls[1]);
+    
+    // const allWalls = walls.build();
+    const allWalls = build.getWalls();
+    // lightSource = new LightSource(world, world3d, allWalls[0], allWalls[1]);
+    lightSource = new LightSource(world, world3d, allWalls, []);
     lightSource.setAngles();
 
     applySavedValues();
@@ -140,6 +150,16 @@ window.onload = () => {
 function applySavedValues() {
     const savedFOV = JSON.parse(localStorage.getItem('fov'));
     const savedRayDensity = JSON.parse(localStorage.getItem('rayDensity'));
+    const newWalls = JSON.parse(localStorage.getItem('walls'));
+
+    if (newWalls) {
+        walls.setWalls(newWalls);
+        lightSource.setWalls(newWalls);
+    } else {
+        walls.setWalls(defaultWalls);
+        lightSource.setWalls(defaultWalls);
+        localStorage.setItem('walls', JSON.stringify(defaultWalls))
+    }
 
     if (savedFOV) {
         fovValue.innerText = JSON.parse(savedFOV);
@@ -238,11 +258,11 @@ document.addEventListener('keyup', (e) => {
         if (requestID) {
             cancelAnimationFrame(requestID);
         }
-        if (window.getComputedStyle(world).display === 'none') {
-            world.style.display = 'block';
-        } else {
-            world.style.display = 'none';
-        }
+        // if (window.getComputedStyle(world).display === 'none') {
+        //     world.style.display = 'block';
+        // } else {
+        //     world.style.display = 'none';
+        // }
         fullscreen = !fullscreen;
         lightSource.setFullscreen(fullscreen);
         beginLoop(fps);
@@ -257,22 +277,22 @@ document.addEventListener('keyup', (e) => {
         }
     }
 
-    if (e.code === 'KeyB' && !fullscreen) {
-        if (!editMode) {
-            world.style.display = 'none';
-            world3d.style.display = 'none';
-            worldCreation.style.display = 'block';
-            editMode = true;
-        } else {
-            const newWalls = build.getWalls();
-            walls.setWalls(newWalls);
-            lightSource.setWalls(newWalls);
-            world.style.display = 'block';
-            world3d.style.display = 'block';
-            worldCreation.style.display = 'none';
-            editMode = false;
-        }
-    }
+    // if (e.code === 'KeyB' && !fullscreen) {
+    //     if (!editMode) {
+    //         world.style.display = 'none';
+    //         world3d.style.display = 'none';
+    //         worldCreation.style.display = 'block';
+    //         editMode = true;
+    //     } else {
+    //         const newWalls = build.getWalls();
+    //         walls.setWalls(newWalls);
+    //         lightSource.setWalls(newWalls);
+    //         world.style.display = 'block';
+    //         world3d.style.display = 'block';
+    //         worldCreation.style.display = 'none';
+    //         editMode = false;
+    //     }
+    // }
 })
 
 // Settings
@@ -300,6 +320,49 @@ resetSettingsBtn.onclick = () => {
     qualitySlider.value = 100 - rayDReset;
 }
 
-settingsBtn.onclick = () => {
-    settings.classList.toggle('show');
+settingsBtn.onclick = () => settings.classList.toggle('show');
+
+function exitEditor() {
+    world.style.display = 'block';
+    world3d.style.display = 'block';
+    worldCreationContainer.style.display = 'none';
+    settings.style.display = 'flex';
+    editMode = false;
 }
+
+function enterEditor() {
+    world.style.display = 'none';
+    world3d.style.display = 'none';
+    worldCreationContainer.style.display = 'flex';
+    settings.style.display = 'none';
+    editMode = true;
+}
+
+wallEditorBtn.onclick = () => {
+    if (!editMode) {
+        const newWalls = JSON.parse(localStorage.getItem('walls'));
+        if (newWalls) build.loadSavedWalls(newWalls);
+        enterEditor();
+    }
+}
+
+// In-Editor Settings
+
+exitEditorBtn.onclick = () => exitEditor()
+
+clearEditorBtn.onclick = () => {
+    build.clearWalls();
+    ctxBuild.clearRect(0, 0, worldCreation.width, worldCreation.height);
+}
+
+saveWallsBtn.onclick = () => {
+    const newWalls = build.getWalls();
+    walls.setWalls(newWalls);
+    lightSource.setWalls(newWalls);
+
+    localStorage.setItem('walls', JSON.stringify(newWalls))
+
+    exitEditor()
+}
+
+undoBtn.onclick = () => build.removeLastWall();

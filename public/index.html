@@ -22,14 +22,23 @@
                 <h5 id="fovValue">45</h5>
             </div>
             <div class="btnContainer">
-                <button id="resetSettingsBtn">Reset</button>
+                <button id="wallEditorBtn">Wall Editor</button>
+                <button id="resetSettingsBtn">Reset Settings</button>
             </div>
 
             <button id="settingsBtn">Settings</button>
         </div>
             <canvas id='world3d' width="1920" height="1200"></canvas>
             <canvas id='world' width="1920" height="1200"></canvas>
-        <canvas id='worldCreation' width="1920" height="1200"></canvas>
+        <div class="worldCreationContainer">
+            <div class="wallEditorBtns">
+                <button id="saveWallsBtn">Save</button>
+                <button id="undoBtn">Undo</button>
+                <button id="clearEditorBtn">Clear</button>
+                <button id="exitEditorBtn">Exit</button>
+            </div>
+            <canvas id='worldCreation' width="1920" height="1200"></canvas>
+        </div>
     </div>
 </body>
 </html>   
