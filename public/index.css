@@ -19,8 +19,8 @@ body {
         flex-flow: column nowrap;
         justify-content: center;
         align-items: center;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         overflow: hidden;
         gap: 1rem;
 
@@ -174,26 +174,22 @@ body {
             height: 100%;
             display: none;
             flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
 
             & #worldCreation {
                 position: relative;
-                border: 2px solid rgb(255, 255, 255);
+                border: 1px solid rgb(255, 255, 255);
+                /* border: none; */
                 background-color: rgba(0, 0, 0, 1);
                 aspect-ratio: 16/10;
-    
-                @media (min-aspect-ratio: 16/10) {
-                    width: auto;
-                    height: 100%;
-                }
-        
-                @media (max-aspect-ratio: 16/10) {
-                    width: 100%;
-                    height: auto;
-                }
+                width: calc(min(100%, calc(100vh - 4rem) * 16/10) - 2rem);
+                overflow: hidden;
             }
     
             & .wallEditorBtns {
                 width: 100%;
+                height: 4rem;
                 padding: 1rem;
                 flex-flow: row nowrap;
                 gap: 1rem;
@@ -215,8 +211,6 @@ body {
                 }
             }
         }
-
-
 
         @media (min-aspect-ratio: 2/1) {
             flex-flow: row nowrap;
