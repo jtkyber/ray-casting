@@ -17,6 +17,9 @@ const undoBtn = document.querySelector('#undoBtn');
 const clearEditorBtn = document.querySelector('#clearEditorBtn');
 const saveWallsBtn = document.querySelector('#saveWallsBtn');
 
+const fpsValue = document.querySelector('.fpsValue');
+
+
 const world = document.getElementById('world');
 const world3d = document.getElementById('world3d');
 const worldCreation = document.getElementById('worldCreation');
@@ -38,7 +41,7 @@ let fpsInterval, now, then, elapsed, requestID;
 
 let fullscreen = false;
 
-const fps = 75;
+const fps = 144;
 
 let walls;
 let lightSource;
@@ -49,13 +52,22 @@ let sprinting = false;
 let bgTopX = 0;
 let bgTopDividend = 180;
 
+let frames = 0;
+const setFramerateValue = () => {
+    fpsValue.innerText = frames;
+    fpsValue.style.color = frames < 60 ? 'red' : 'rgb(0, 255, 0)'
+    frames = 0;
+}
+
 const gameLoop = () => {
     requestID = requestAnimationFrame(gameLoop);
-
+    
     now = Date.now();
     elapsed = now - then;
-
+    
     if (elapsed > fpsInterval) {
+        if (frames === 0) setTimeout(setFramerateValue, 1000)
+        frames += 1;
         then = now - (elapsed % fpsInterval);
 
         ctx.clearRect(0, 0, world.width, world.height);
@@ -99,7 +111,7 @@ const gameLoop = () => {
     }
 }
 
-const beginLoop = (fps) => {
+const beginLoop = () => {
     fpsInterval = 1000 / fps;
     then = Date.now();
 
@@ -144,7 +156,7 @@ const beginLoop = (fps) => {
 }
 
 window.onload = () => {
-    beginLoop(fps);
+    beginLoop();
 }
 
 function applySavedValues() {

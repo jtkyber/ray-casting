@@ -14,32 +14,34 @@ export default class Build {
     }
 
     getWalls() {
-        this.allWalls.push(
-            {
-                x1: 0,
-                y1: 0,
-                x2: 0,
-                y2: this.world.height
-            },
-            {
-                x1: 0,
-                y1: 0,
-                x2: this.world.width,
-                y2: 0
-            },
-            {
-                x1: this.world.width,
-                y1: 0,
-                x2: this.world.width,
-                y2: this.world.height
-            },
-            {
-                x1: this.world.width,
-                y1: this.world.height,
-                x2: 0,
-                y2: this.world.height
-            }
-        )
+        if (!this.allWalls[0]) {
+            this.allWalls.push(
+                {
+                    x1: 0,
+                    y1: 0,
+                    x2: 0,
+                    y2: this.world.height
+                },
+                {
+                    x1: 0,
+                    y1: 0,
+                    x2: this.world.width,
+                    y2: 0
+                },
+                {
+                    x1: this.world.width,
+                    y1: 0,
+                    x2: this.world.width,
+                    y2: this.world.height
+                },
+                {
+                    x1: this.world.width,
+                    y1: this.world.height,
+                    x2: 0,
+                    y2: this.world.height
+                }
+            )
+        }
 
         return [...this.allWalls];
     }
@@ -75,24 +77,8 @@ export default class Build {
         }
         
         if (!this.p1?.x) {
-            // this.ctx.beginPath();
-            // this.ctx.fillStyle = this.pointColor;
-            // this.ctx.ellipse(x, y, 2, 2, 0, 0, 2 * Math.PI);
-            // this.ctx.fill();
             this.p1 = {x, y};
         } else {
-            // this.ctx.beginPath();
-            // this.ctx.fillStyle = this.pointColor;
-            // this.ctx.ellipse(x, y, 2, 2, 0, 0, 2 * Math.PI);
-            // this.ctx.fill();
-
-            // this.ctx.beginPath();
-            // this.ctx.moveTo(this.p1.x, this.p1.y);
-            // this.ctx.lineTo(x, y);
-            // this.ctx.lineWidth = 2;
-            // this.ctx.strokeStyle = "rgba(255,255,255,0.8)";
-            // this.ctx.stroke();
-            
             this.allWalls.push({
                 x1: this.p1.x,
                 y1: this.p1.y,

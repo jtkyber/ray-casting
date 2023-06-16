@@ -24,6 +24,19 @@ body {
         overflow: hidden;
         gap: 1rem;
 
+        & .fpsCounter {
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: white;
+            margin: 0.5rem 1rem;
+            opacity: 0.7;
+
+            & .fpsValue {
+                color: rgb(0, 255, 0);
+            }
+        }
+
         & .settings {
             width: 20rem;
             height: max-content;
@@ -180,7 +193,6 @@ body {
             & #worldCreation {
                 position: relative;
                 border: 1px solid rgb(255, 255, 255);
-                /* border: none; */
                 background-color: rgba(0, 0, 0, 1);
                 aspect-ratio: 16/10;
                 width: calc(min(100%, calc(100vh - 4rem) * 16/10) - 2rem);

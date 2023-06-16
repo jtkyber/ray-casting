@@ -62,7 +62,6 @@ export default class LightSource {
     }
 
     setPlayerPos(playerX, playerY) {
-        // console.log(playerX)
         this.playerX = playerX;
         this.playerY = playerY;
     }
@@ -108,6 +107,7 @@ export default class LightSource {
         }
     }
 
+    
     setMoveDir(dir) {
         if (this.moveDirFB === null) {
             this.moveAmt = this.moveAmtStart;
@@ -121,6 +121,17 @@ export default class LightSource {
         }
         this.moveDirStrafe = dir;
     }
+
+    // compareFn(a, b) {
+    //     const dA1 = Math.sqrt(Math.abs(Math.pow((a.x1 - this.playerX), 2)) + Math.abs(Math.pow((a.y1 - this.playerY), 2)))
+    //     const dA2 = Math.sqrt(Math.abs(Math.pow((a.x2 - this.playerX), 2)) + Math.abs(Math.pow((a.y2 - this.playerY), 2)))
+
+    //     const dB1 = Math.sqrt(Math.abs(Math.pow((b.x1 - this.playerX), 2)) + Math.abs(Math.pow((b.y1 - this.playerY), 2)))
+    //     const dB2 = Math.sqrt(Math.abs(Math.pow((b.x2 - this.playerX), 2)) + Math.abs(Math.pow((b.y2 - this.playerY), 2)))
+
+    //     if ((dA1 <= Math.min(dB1, dB2)) || (dA2 <= Math.min(dB1, dB2))) return -1
+    //     else return 1
+    // }
 
     move() {
         if ((this.moveAmt < this.moveAmtTop)) {
@@ -238,12 +249,12 @@ export default class LightSource {
         this.cornersInView = [];
         const rotation = ((this.rotation % 360) + 360) % 360;
         // let moveDirRaysFound = false;
-        const middleRayAngle = this.rayAngles[Math.floor(this.rayAngles.length / 2)];
+        // const middleRayAngle = this.rayAngles[Math.floor(this.rayAngles.length / 2)];
         
         for (let i = 0; i < this.rayAngles.length; i ++) {
             let closest = null;
             let record = Infinity;
-            let recordCornerRayDiff = Infinity;
+            // let recordCornerRayDiff = Infinity;
             
             for (const wall of this.allWalls) {
                 const intersection = this.getIntersection(x, y, r, this.rayAngles[i], wall, rotation);
@@ -252,7 +263,7 @@ export default class LightSource {
                     const dx = Math.abs(x - intersection[0]);
                     const dy = Math.abs(y - intersection[1]);
                     const d = Math.sqrt(dx * dx + dy * dy);
-
+                    
                     record = Math.min(d, record);
                     if (d <= record) {
                         record = d;
@@ -296,9 +307,9 @@ export default class LightSource {
 
         //get lengths for rays going in directions that the player can move in (F,B,L,R)
         const rotationF = ((this.rotation % 360) + 360) % 360;
-        const rotationL = (((this.rotation - 90) % 360) + 360) % 360;
         const rotationR = (((this.rotation + 90) % 360) + 360) % 360;
         const rotationB = (((this.rotation + 180) % 360) + 360) % 360;
+        const rotationL = (((this.rotation - 90) % 360) + 360) % 360;
 
         let closestF = null;
         let recordF = Infinity;
