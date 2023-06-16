@@ -13,7 +13,7 @@ export default class Walls3d {
     draw(rays, lengthsToCorner) {
         const rayNum = rays.length;
         let wallX = 0;
-        let cornerPoint = null;
+        // let cornerPoint = null;
         
         for (const ray of rays) {
             let wallWidth = this.world3d.width / rayNum;
@@ -25,7 +25,6 @@ export default class Walls3d {
             const wallEndBottom = this.world3d.height - wallStartTop - wallShiftAmt;
 
             let wallDarkness = ray / this.world3d.height;
-            // console.log(ray)
             wallDarkness = ((this.world3dDiag - ray) / this.world3dDiag);
 
             const wallGradient = this.ctx.createLinearGradient(wallX + wallWidthOversized / 2, wallEndBottom, wallX + wallWidthOversized / 2, wallStartTop);
