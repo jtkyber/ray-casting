@@ -16,7 +16,9 @@ const exitEditorBtn = document.querySelector('#exitEditorBtn');
 const undoBtn = document.querySelector('#undoBtn');
 const clearEditorBtn = document.querySelector('#clearEditorBtn');
 const saveWallsBtn = document.querySelector('#saveWallsBtn');
+const toggleFPSBtn = document.querySelector('#toggleFPSBtn');
 
+const fpsCounter = document.querySelector('.fpsCounter');
 const fpsValue = document.querySelector('.fpsValue');
 
 
@@ -378,3 +380,8 @@ saveWallsBtn.onclick = () => {
 }
 
 undoBtn.onclick = () => build.removeLastWall();
+
+toggleFPSBtn.onclick = () => {
+    fpsCounter.classList.toggle('active')
+    toggleFPSBtn.classList.toggle('active')
+}
