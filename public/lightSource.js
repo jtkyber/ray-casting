@@ -20,12 +20,10 @@ export default class LightSource {
         this.rotation = 45;
         this.playerX = 5;
         this.playerY = 5;
-        // this.playerX = world.getBoundingClientRect().x;
-        // this.playerY = world.getBoundingClientRect().y;
         this.moveAmtStart = 0.5;
         this.moveAmt = this.moveAmtStart;
         this.moveAmtTop = 1.5;
-        this.angle = 135;
+        this.angle = this.rotation + 90;
         this.rotationAmtStart = 0.2;
         this.rotationAmt = this.rotationAmtStart;
         this.rotationAmtTop = 2
@@ -89,6 +87,9 @@ export default class LightSource {
     }
 
     setMouseRotation(amt) {
+        // if (Math.abs(amt) > 5) {
+        //     console.log(Math.abs(amt), this.rotation)
+        // }
         this.rotation += amt;
         this.angle += amt;
     }
