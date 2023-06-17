@@ -57,7 +57,7 @@ let bgTopDividend = 180;
 let frames = 0;
 const setFramerateValue = () => {
     fpsValue.innerText = frames;
-    fpsValue.style.color = frames < 60 ? 'red' : 'rgb(0, 255, 0)'
+    fpsValue.style.color = frames < 60 ? 'red' : 'rgb(0, 255, 0)';
     frames = 0;
 }
 
@@ -123,22 +123,12 @@ const beginLoop = () => {
     if (fullscreen) {
         world3d.requestPointerLock = world3d.requestPointerLock || world3d.mozRequestPointerLock || world3d.webkitRequestPointerLock;
         world3d.requestPointerLock();
-        // ctx.canvas.width = window.innerWidth;
-        // ctx3d.canvas.width = window.innerWidth;
-        // ctx.canvas.height = window.innerHeight;
-        // ctx3d.canvas.height = window.innerHeight;
         world.style.display = 'none';
         world3d.classList.add('fullscreen');
         walls = new Walls(world, 10);
     } else {
-        document.exitPointerLock  = document.exitPointerLock || document.mozExitPointerLock  || document.webkitExitPointerLock;
+        document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock  || document.webkitExitPointerLock;
         document.exitPointerLock();
-        // ctx.canvas.width = window.innerWidth / 2.2;
-        // ctx3d.canvas.width = window.innerWidth / 2.2;
-        // ctx.canvas.height = window.innerHeight / 1.2;
-        // ctx3d.canvas.height = window.innerHeight / 1.2;
-        // world.classList.remove('fullscreen');
-        // world3d.classList.remove('fullscreen');
         world.style.display = 'block';
         world3d.classList.remove('fullscreen');
         walls = new Walls(world, 5);
@@ -165,6 +155,7 @@ function applySavedValues() {
     const savedFOV = JSON.parse(localStorage.getItem('fov'));
     const savedRayDensity = JSON.parse(localStorage.getItem('rayDensity'));
     const newWalls = JSON.parse(localStorage.getItem('walls'));
+    const fpsOn = JSON.parse(localStorage.getItem('fpsOn'));
 
     if (newWalls) {
         walls.setWalls(newWalls);
@@ -185,6 +176,14 @@ function applySavedValues() {
         qualityValue.innerText = 100 - JSON.parse(savedRayDensity);
         lightSource.setRayDensity(JSON.parse(savedRayDensity));
         qualitySlider.value = 100 - JSON.parse(savedRayDensity);
+    }
+
+    if (fpsOn) {
+        fpsCounter.classList.add('active')
+        toggleFPSBtn.classList.add('active')
+    } else {
+        fpsCounter.classList.remove('active')
+        toggleFPSBtn.classList.remove('active')
     }
 }
 
@@ -384,4 +383,7 @@ undoBtn.onclick = () => build.removeLastWall();
 toggleFPSBtn.onclick = () => {
     fpsCounter.classList.toggle('active')
     toggleFPSBtn.classList.toggle('active')
+    if (toggleFPSBtn.classList.contains('active')) {
+        localStorage.setItem('fpsOn', true);
+    } else localStorage.setItem('fpsOn', false);
 }
