@@ -363,6 +363,10 @@ resetSettingsBtn.onclick = () => {
     qualityValue.innerText = 100 - rayDReset;
     lightSource.setRayDensity(rayDReset);
     qualitySlider.value = 100 - rayDReset;
+
+    fpsCounter.classList.remove('active');
+    toggleFPSBtn.classList.remove('active');
+    localStorage.setItem('fpsOn', false);
 }
 
 settingsBtn.onclick = () => settings.classList.toggle('show');
@@ -392,8 +396,8 @@ wallEditorBtn.onclick = () => {
 }
 
 toggleFPSBtn.onclick = () => {
-    fpsCounter.classList.toggle('active')
-    toggleFPSBtn.classList.toggle('active')
+    fpsCounter.classList.toggle('active');
+    toggleFPSBtn.classList.toggle('active');
     if (toggleFPSBtn.classList.contains('active')) {
         localStorage.setItem('fpsOn', true);
     } else localStorage.setItem('fpsOn', false);
