@@ -104,8 +104,8 @@ body {
             & .btnContainer {
                 width: 100%;
                 display: flex;
-                flex-flow: row wrap;
-                justify-content: center;
+                flex-flow: row nowrap;
+                justify-content: flex-end;
                 gap: 1rem;
 
                 & button {
@@ -116,6 +116,7 @@ body {
                     color: black;
                     cursor: pointer;
                     transition: opacity ease-out 0.1s;
+                    white-space: pre-line;
 
                     &:hover {
                         opacity: 0.5;
