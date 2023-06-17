@@ -15,8 +15,10 @@ const wallEditorBtn = document.querySelector('#wallEditorBtn');
 const exitEditorBtn = document.querySelector('#exitEditorBtn');
 const undoBtn = document.querySelector('#undoBtn');
 const clearEditorBtn = document.querySelector('#clearEditorBtn');
+const defaultMapBtn = document.querySelector('#defaultMapBtn');
 const saveWallsBtn = document.querySelector('#saveWallsBtn');
 const toggleFPSBtn = document.querySelector('#toggleFPSBtn');
+const toggleCornersBtn = document.querySelector('#toggleCornersBtn');
 
 const fpsCounter = document.querySelector('.fpsCounter');
 const fpsValue = document.querySelector('.fpsValue');
@@ -50,6 +52,8 @@ let lightSource;
 let build = new Build(worldCreation, world);
 
 let sprinting = false;
+
+let showCorners = false;
 
 let bgTopX = 0;
 let bgTopDividend = 180;
@@ -96,10 +100,14 @@ const gameLoop = () => {
             bgTopX = 0;
         }
 
-        ctx3d.drawImage(bgTopImg, bgTopX, 0, bgTopImg.width, world3d.height * 0.4);
-        ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, 0, bgTopImg.width, world3d.height * 0.4);
+        const skyEndY = world3d.height * 0.4;
+
+        ctx3d.drawImage(bgTopImg, bgTopX, 0, bgTopImg.width, skyEndY);
+        ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, 0, bgTopImg.width, skyEndY);
         ctx3d.fillStyle = `rgba(0,0,0,0.7)`;
-        ctx3d.fillRect(0, 0, world3d.width, world3d.height * 0.4);
+        ctx3d.fillRect(0, 0, world3d.width, skyEndY);
+        ctx3d.fillStyle = `rgb(15, 35, 15)`;
+        ctx3d.fillRect(0, skyEndY, world3d.width, world3d.height);
 
         lightSource.draw(); 
         lightSource.rotate();
@@ -134,15 +142,9 @@ const beginLoop = () => {
         walls = new Walls(world, 5);
     }
 
-    //Get all wall points and corner points
-    
-    // const allWalls = walls.build();
-    const allWalls = build.getWalls();
-    // lightSource = new LightSource(world, world3d, allWalls[0], allWalls[1]);
-    lightSource = new LightSource(world, world3d, allWalls, []);
-    lightSource.setAngles();
-
+    lightSource = new LightSource(world, world3d, [], []);
     applySavedValues();
+    lightSource.setAngles();
 
     gameLoop();
 }
@@ -154,15 +156,32 @@ window.onload = () => {
 function applySavedValues() {
     const savedFOV = JSON.parse(localStorage.getItem('fov'));
     const savedRayDensity = JSON.parse(localStorage.getItem('rayDensity'));
-    const newWalls = JSON.parse(localStorage.getItem('walls'));
+    const savedWalls = JSON.parse(localStorage.getItem('walls'));
     const fpsOn = JSON.parse(localStorage.getItem('fpsOn'));
+    const playerPos = JSON.parse(localStorage.getItem('playerPos'));
+    const playerRot = JSON.parse(localStorage.getItem('playerRot'));
+    const showCornersSaved = JSON.parse(localStorage.getItem('showCorners'));
 
-    if (newWalls) {
-        walls.setWalls(newWalls);
-        lightSource.setWalls(newWalls);
+    showCorners = showCornersSaved;
+
+    if (savedWalls) {
+        walls.setWalls(savedWalls);
+        lightSource.setWalls(savedWalls);
+        if (showCorners) {
+            const corners = walls.getCorners();
+            walls.setCorners(corners);
+            lightSource.setCorners(corners);
+            toggleCornersBtn.classList.add('active');
+        } else toggleCornersBtn.classList.remove('active');
     } else {
         walls.setWalls(defaultWalls);
         lightSource.setWalls(defaultWalls);
+        if (showCorners) {
+            const corners = walls.getCorners();
+            walls.setCorners(corners);
+            lightSource.setCorners(corners);
+            toggleCornersBtn.classList.add('active');
+        } else toggleCornersBtn.classList.remove('active');
         localStorage.setItem('walls', JSON.stringify(defaultWalls))
     }
 
@@ -185,6 +204,9 @@ function applySavedValues() {
         fpsCounter.classList.remove('active')
         toggleFPSBtn.classList.remove('active')
     }
+
+    if (playerPos) lightSource.setPlayerPos(playerPos[0], playerPos[1])
+    if (playerRot) lightSource.setRotationValue(playerRot)
 }
 
 document.addEventListener('click', (e) => {
@@ -202,6 +224,7 @@ document.addEventListener('mousemove', (e) => {
     if (fullscreen) {
         lightSource.setMouseRotation(e.movementX / 20);
         bgTopX -= (bgTopImg.width / bgTopDividend) * e.movementX / 20;
+        localStorage.setItem('playerRot', JSON.stringify(lightSource.getRotationValue()));
     }
 
     if (e.target.id === 'worldCreation') {
@@ -246,15 +269,18 @@ document.addEventListener('keyup', (e) => {
     if (fullscreen) {
         if ((e.code === 'KeyA') || (e.code === 'KeyD')) {
             lightSource.setStrafeDir(null);
+            localStorage.setItem('playerPos', JSON.stringify(lightSource.getPlayerPos()));
         }
     } else {
         if ((e.code === 'KeyA') || (e.code === 'KeyD')) {
             lightSource.setRotation(null);
+            localStorage.setItem('playerRot', JSON.stringify(lightSource.getRotationValue()));
         }
     } 
 
     if ((e.code === 'KeyW') || (e.code === 'KeyS')) {
         lightSource.setMoveDir(null);
+        localStorage.setItem('playerPos', JSON.stringify(lightSource.getPlayerPos()));
     } 
 
     //Reset everything
@@ -297,7 +323,7 @@ document.addEventListener('keyup', (e) => {
     //         worldCreation.style.display = 'block';
     //         editMode = true;
     //     } else {
-    //         const newWalls = build.getWalls();
+    //         const newWalls = walls.getWalls();
     //         walls.setWalls(newWalls);
     //         lightSource.setWalls(newWalls);
     //         world.style.display = 'block';
@@ -323,6 +349,12 @@ fovSlider.oninput = () => {
 resetSettingsBtn.onclick = () => {
     const fovReset = 45;
     const rayDReset = 12;
+
+    walls.setCorners([]);
+    lightSource.setCorners([]);
+    toggleCornersBtn.classList.remove('active');
+    localStorage.setItem('showCorners', JSON.stringify(false));
+    showCorners = false;
 
     fovValue.innerText = fovReset;
     lightSource.setFov(fovReset);
@@ -359,6 +391,31 @@ wallEditorBtn.onclick = () => {
     }
 }
 
+toggleFPSBtn.onclick = () => {
+    fpsCounter.classList.toggle('active')
+    toggleFPSBtn.classList.toggle('active')
+    if (toggleFPSBtn.classList.contains('active')) {
+        localStorage.setItem('fpsOn', true);
+    } else localStorage.setItem('fpsOn', false);
+}
+
+toggleCornersBtn.onclick = () => {
+    showCorners = !showCorners;
+    
+    if (showCorners) {
+        const corners = walls.getCorners();
+        walls.setCorners(corners);
+        lightSource.setCorners(corners);
+        toggleCornersBtn.classList.add('active');
+    } else {
+        walls.setCorners([]);
+        lightSource.setCorners([]);
+        toggleCornersBtn.classList.remove('active');
+    }
+
+    localStorage.setItem('showCorners', JSON.stringify(showCorners));
+}
+
 // In-Editor Settings
 
 exitEditorBtn.onclick = () => exitEditor()
@@ -372,6 +429,12 @@ saveWallsBtn.onclick = () => {
     const newWalls = build.getWalls();
     walls.setWalls(newWalls);
     lightSource.setWalls(newWalls);
+    if (showCorners) {
+        const corners = walls.getCorners();
+        walls.setCorners(corners);
+        lightSource.setCorners(corners);
+        toggleCornersBtn.classList.add('active');
+    }
 
     localStorage.setItem('walls', JSON.stringify(newWalls))
 
@@ -380,10 +443,4 @@ saveWallsBtn.onclick = () => {
 
 undoBtn.onclick = () => build.removeLastWall();
 
-toggleFPSBtn.onclick = () => {
-    fpsCounter.classList.toggle('active')
-    toggleFPSBtn.classList.toggle('active')
-    if (toggleFPSBtn.classList.contains('active')) {
-        localStorage.setItem('fpsOn', true);
-    } else localStorage.setItem('fpsOn', false);
-}
+defaultMapBtn.onclick = () => build.setWalls(defaultWalls);

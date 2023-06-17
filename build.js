@@ -4,7 +4,7 @@ export default class Build {
         this.world = world;
         this.ctx = this.worldCreation.getContext('2d');
         this.lineActive = false;
-        this.allWalls = [];
+        this.walls = [];
         this.p1 = {};
         this.p2Temp = {};
         this.allPoints = [];
@@ -13,49 +13,51 @@ export default class Build {
         this.actualCanvasHeight = 1200;
     }
 
-    getWalls() {
-        if (!this.allWalls[0]) {
-            this.allWalls.push(
-                {
-                    x1: 0,
-                    y1: 0,
-                    x2: 0,
-                    y2: this.world.height
-                },
-                {
-                    x1: 0,
-                    y1: 0,
-                    x2: this.world.width,
-                    y2: 0
-                },
-                {
-                    x1: this.world.width,
-                    y1: 0,
-                    x2: this.world.width,
-                    y2: this.world.height
-                },
-                {
-                    x1: this.world.width,
-                    y1: this.world.height,
-                    x2: 0,
-                    y2: this.world.height
-                }
-            )
-        }
+    setWalls(walls) {
+        this.walls = walls;
+    }
 
-        return [...this.allWalls];
+    getWalls() {
+        this.walls.push(
+            {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: this.world.height
+            },
+            {
+                x1: 0,
+                y1: 0,
+                x2: this.world.width,
+                y2: 0
+            },
+            {
+                x1: this.world.width,
+                y1: 0,
+                x2: this.world.width,
+                y2: this.world.height
+            },
+            {
+                x1: this.world.width,
+                y1: this.world.height,
+                x2: 0,
+                y2: this.world.height
+            }
+        )
+
+        return [...this.walls];
     }
 
     clearWalls() {
-        this.allWalls = [];
+        this.walls = [];
     }
 
     removeLastWall() {
-        this.allWalls.pop();
+        this.walls.pop();
     }
 
     loadSavedWalls(savedWalls) {
-        this.allWalls = savedWalls;
+        this.walls = savedWalls;
     }
 
     setP2Temp(x, y) {
@@ -79,7 +81,7 @@ export default class Build {
         if (!this.p1?.x) {
             this.p1 = {x, y};
         } else {
-            this.allWalls.push({
+            this.walls.push({
                 x1: this.p1.x,
                 y1: this.p1.y,
                 x2: x,
@@ -93,7 +95,7 @@ export default class Build {
     }
 
     draw() {
-        for (let point of this.allWalls) {
+        for (let point of this.walls) {
             this.ctx.beginPath();
             this.ctx.moveTo(point.x1, point.y1);
             this.ctx.lineTo(point.x2, point.y2);
