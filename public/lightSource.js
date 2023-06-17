@@ -51,6 +51,10 @@ export default class LightSource {
         this.allWalls = walls;
     }
 
+    setCorners(corners) {
+        this.allCorners = corners;
+    }
+
     setAngles() {
         this.rayAngles = [];
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
@@ -62,6 +66,10 @@ export default class LightSource {
     setPlayerPos(playerX, playerY) {
         this.playerX = playerX;
         this.playerY = playerY;
+    }
+
+    getPlayerPos() {
+        return [this.playerX, this.playerY]
     }
 
     setFov(value) {
@@ -76,7 +84,15 @@ export default class LightSource {
         this.rayOpacity = value / 100 + 0.14; 
         this.setAngles();
         localStorage.setItem('rayDensity', JSON.stringify(value));
+    }
 
+    setRotationValue(rot) {
+        this.rotation = rot;
+        this.angle = rot + 90;
+    }
+
+    getRotationValue() {
+        return this.rotation;
     }
 
     setRotation(dir) {
@@ -122,17 +138,6 @@ export default class LightSource {
         }
         this.moveDirStrafe = dir;
     }
-
-    // compareFn(a, b) {
-    //     const dA1 = Math.sqrt(Math.abs(Math.pow((a.x1 - this.playerX), 2)) + Math.abs(Math.pow((a.y1 - this.playerY), 2)))
-    //     const dA2 = Math.sqrt(Math.abs(Math.pow((a.x2 - this.playerX), 2)) + Math.abs(Math.pow((a.y2 - this.playerY), 2)))
-
-    //     const dB1 = Math.sqrt(Math.abs(Math.pow((b.x1 - this.playerX), 2)) + Math.abs(Math.pow((b.y1 - this.playerY), 2)))
-    //     const dB2 = Math.sqrt(Math.abs(Math.pow((b.x2 - this.playerX), 2)) + Math.abs(Math.pow((b.y2 - this.playerY), 2)))
-
-    //     if ((dA1 <= Math.min(dB1, dB2)) || (dA2 <= Math.min(dB1, dB2))) return -1
-    //     else return 1
-    // }
 
     move() {
         if ((this.moveAmt < this.moveAmtTop)) {
@@ -255,7 +260,7 @@ export default class LightSource {
         for (let i = 0; i < this.rayAngles.length; i ++) {
             let closest = null;
             let record = Infinity;
-            // let recordCornerRayDiff = Infinity;
+            let recordCornerRayDiff = Infinity;
             
             for (const wall of this.allWalls) {
                 const intersection = this.getIntersection(x, y, r, this.rayAngles[i], wall, rotation);
@@ -281,23 +286,24 @@ export default class LightSource {
                 ctx.lineWidth = 1;
                 ctx.stroke();
 
-                // for (const corner of this.allCorners) {
-                //     const cornerDx = Math.abs(x - corner.x);
-                //     const cornerDy = Math.abs(y - corner.y);
-                //     const cornerD = Math.sqrt(cornerDx * cornerDx + cornerDy * cornerDy);
+                for (const corner of this.allCorners) {
+                    // const cornerDx = Math.abs(x - corner.x);
+                    // const cornerDy = Math.abs(y - corner.y);
+                    // const cornerD = Math.sqrt(cornerDx * cornerDx + cornerDy * cornerDy);
 
-                //     const cornerRayDiff = Math.abs(cornerD - record);
-                //     if ((closest[0] > corner.x - 3 && closest[0] < corner.x + 3) && (closest[1] > corner.y - 3 && closest[1] < corner.y + 3)) {
-                //         ctx.beginPath();
-                //         ctx.moveTo(x, y);
-                //         ctx.lineTo(corner.x, corner.y);
-                //         ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
-                //         ctx.lineWidth = 2;
-                //         ctx.stroke();
-                //         this.cornersInView.push(record);
-                //         break;
-                //     } 
-                // }
+                    // const cornerRayDiff = Math.abs(cornerD - record);
+                    const cornerSpread = 3;
+                    if ((closest[0] > corner.x - cornerSpread && closest[0] < corner.x + cornerSpread) && (closest[1] > corner.y - cornerSpread && closest[1] < corner.y + cornerSpread)) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(corner.x, corner.y);
+                        ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        this.cornersInView.push(record);
+                        break;
+                    } 
+                }
 
                 this.allRays.push(record);
             } else {

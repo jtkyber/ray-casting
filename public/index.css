@@ -104,7 +104,8 @@ body {
             & .btnContainer {
                 width: 100%;
                 display: flex;
-                justify-content: flex-end;
+                flex-flow: row wrap;
+                justify-content: center;
                 gap: 1rem;
 
                 & button {
@@ -121,6 +122,12 @@ body {
                     }
 
                     &#toggleFPSBtn {
+                        &.active {
+                            opacity: 0.6;
+                        }
+                    }
+
+                    &#toggleCornersBtn {
                         &.active {
                             opacity: 0.6;
                         }
