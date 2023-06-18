@@ -69,7 +69,10 @@ export default class Build {
     }
 
     removeLastWall() {
+        if (this.p1?.x) return
         this.walls.pop();
+        this.allPoints.pop();
+        this.allPoints.pop();
     }
 
     // loadSavedWalls(savedWalls) {
