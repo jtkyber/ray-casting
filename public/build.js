@@ -64,6 +64,10 @@ export default class Build {
 
     loadSavedWalls(savedWalls) {
         this.walls = savedWalls;
+        // for (let wall of this.walls) {
+        //     this.allPoints.push({x: wall.x1, y: wall.y1})
+        //     this.allPoints.push({x: wall.x2, y: wall.y2})
+        // }
     }
 
     setP2Temp(x, y) {
