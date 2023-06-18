@@ -130,7 +130,9 @@ const beginLoop = () => {
     //set new wall layout
     if (fullscreen) {
         world3d.requestPointerLock = world3d.requestPointerLock || world3d.mozRequestPointerLock || world3d.webkitRequestPointerLock;
-        world3d.requestPointerLock();
+        world3d.requestPointerLock({
+            unadjustedMovement: true,
+        });
         world.style.display = 'none';
         world3d.classList.add('fullscreen');
         walls = new Walls(world, 10);
