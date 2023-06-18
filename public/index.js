@@ -292,12 +292,12 @@ document.addEventListener('keyup', (e) => {
     } 
 
     //Reset everything
-    if (e.code === 'Space') {
-        if (requestID) {
-            cancelAnimationFrame(requestID);
-        }
-        beginLoop(60);
-    }
+    // if (e.code === 'Space') {
+    //     if (requestID) {
+    //         cancelAnimationFrame(requestID);
+    //     }
+    //     beginLoop(60);
+    // }
 
     //Toggle fullscreen
     if (e.code === 'Enter') {
