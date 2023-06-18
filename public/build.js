@@ -18,6 +18,14 @@ export default class Build {
     }
 
     getWalls() {
+        if (!this.walls[0]) {
+            this.addEdgeWalls();
+        }
+
+        return [...this.walls];
+    }
+
+    addEdgeWalls() {
         this.walls.push(
             {
                 x1: 0,
@@ -44,8 +52,6 @@ export default class Build {
                 y2: this.world.height
             }
         )
-
-        return [...this.walls];
     }
 
     clearWalls() {
@@ -65,6 +71,8 @@ export default class Build {
     }
 
     addPoint(canvasPosX, canvasPosY) {
+        if (!this.walls[0]) this.addEdgeWalls();
+
         const actualToDisplayedRatioX = this.actualCanvasWidth/this.worldCreation.getBoundingClientRect().width;
         const actualToDisplayedRatioY = this.actualCanvasHeight/this.worldCreation.getBoundingClientRect().height;
         let x = canvasPosX * actualToDisplayedRatioX;

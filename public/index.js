@@ -197,13 +197,19 @@ function applySavedValues() {
         qualitySlider.value = 100 - JSON.parse(savedRayDensity);
     }
 
-    if (fpsOn) {
+    if (fpsOn !== null) {
+        if (fpsOn) {
+            fpsCounter.classList.add('active')
+            toggleFPSBtn.classList.add('active')
+        } else {
+            fpsCounter.classList.remove('active')
+            toggleFPSBtn.classList.remove('active')
+        }
+    } else {
         fpsCounter.classList.add('active')
         toggleFPSBtn.classList.add('active')
-    } else {
-        fpsCounter.classList.remove('active')
-        toggleFPSBtn.classList.remove('active')
     }
+
 
     if (playerPos) lightSource.setPlayerPos(playerPos[0], playerPos[1])
     if (playerRot) lightSource.setRotationValue(playerRot)
@@ -364,9 +370,9 @@ resetSettingsBtn.onclick = () => {
     lightSource.setRayDensity(rayDReset);
     qualitySlider.value = 100 - rayDReset;
 
-    fpsCounter.classList.remove('active');
-    toggleFPSBtn.classList.remove('active');
-    localStorage.setItem('fpsOn', false);
+    fpsCounter.classList.add('active');
+    toggleFPSBtn.classList.add('active');
+    localStorage.setItem('fpsOn', true);
 }
 
 settingsBtn.onclick = () => settings.classList.toggle('show');
