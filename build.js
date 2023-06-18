@@ -14,7 +14,14 @@ export default class Build {
     }
 
     setWalls(walls) {
+        this.allPoints = [];
+        this.p1 = {};
+        this.p2Temp = {};
         this.walls = walls;
+        for (let wall of this.walls) {
+            this.allPoints.push({x: wall.x1, y: wall.y1})
+            this.allPoints.push({x: wall.x2, y: wall.y2})
+        }
     }
 
     getWalls() {
@@ -56,19 +63,18 @@ export default class Build {
 
     clearWalls() {
         this.walls = [];
+        this.allPoints = [];
+        this.p1 = {};
+        this.p2Temp = {};
     }
 
     removeLastWall() {
         this.walls.pop();
     }
 
-    loadSavedWalls(savedWalls) {
-        this.walls = savedWalls;
-        // for (let wall of this.walls) {
-        //     this.allPoints.push({x: wall.x1, y: wall.y1})
-        //     this.allPoints.push({x: wall.x2, y: wall.y2})
-        // }
-    }
+    // loadSavedWalls(savedWalls) {
+    //     this.walls = savedWalls;
+    // }
 
     setP2Temp(x, y) {
         if (this.p1?.x) this.p2Temp = {x, y}

@@ -6,6 +6,7 @@
 
 button {
     outline: none;
+    user-select: none;
 }
 
 body {
