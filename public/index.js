@@ -174,15 +174,15 @@ function applySavedValues() {
             toggleCornersBtn.classList.add('active');
         } else toggleCornersBtn.classList.remove('active');
     } else {
-        walls.setWalls(defaultWalls);
-        lightSource.setWalls(defaultWalls);
+        walls.setWalls([...defaultWalls]);
+        lightSource.setWalls([...defaultWalls]);
         if (showCorners) {
             const corners = walls.getCorners();
             walls.setCorners(corners);
             lightSource.setCorners(corners);
             toggleCornersBtn.classList.add('active');
         } else toggleCornersBtn.classList.remove('active');
-        localStorage.setItem('walls', JSON.stringify(defaultWalls))
+        localStorage.setItem('walls', JSON.stringify([...defaultWalls]))
     }
 
     if (savedFOV) {
@@ -396,7 +396,7 @@ function enterEditor() {
 wallEditorBtn.onclick = () => {
     if (!editMode) {
         const newWalls = JSON.parse(localStorage.getItem('walls'));
-        if (newWalls) build.loadSavedWalls(newWalls);
+        if (newWalls) build.setWalls(newWalls);
         enterEditor();
     }
 }
@@ -453,4 +453,6 @@ saveWallsBtn.onclick = () => {
 
 undoBtn.onclick = () => build.removeLastWall();
 
-defaultMapBtn.onclick = () => build.setWalls(defaultWalls);
+defaultMapBtn.onclick = () => {
+    build.setWalls([...defaultWalls]);
+}
