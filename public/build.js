@@ -75,10 +75,6 @@ export default class Build {
         this.allPoints.pop();
     }
 
-    // loadSavedWalls(savedWalls) {
-    //     this.walls = savedWalls;
-    // }
-
     setP2Temp(x, y) {
         if (this.p1?.x) this.p2Temp = {x, y}
     }
