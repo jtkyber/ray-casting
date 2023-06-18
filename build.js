@@ -92,6 +92,11 @@ export default class Build {
         let y = canvasPosY * actualToDisplayedRatioY;
         
         for (let i=0; i<this.allPoints.length; i++) {
+            if (this.p1?.x && Math.abs(x - this.p1.x) <= 15 && Math.abs(y - this.p1.y) <= 15) {
+                this.p1 = {};
+                return;
+            }
+
             if (Math.abs(x - this.allPoints[i].x) <= 15 && Math.abs(y - this.allPoints[i].y) <= 15) {
                 x = this.allPoints[i].x;
                 y = this.allPoints[i].y;
