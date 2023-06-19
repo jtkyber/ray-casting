@@ -1,13 +1,14 @@
 import Walls3d from "./walls3d.js";
 
 export default class LightSource {
-    constructor(world, world3d, allWalls, allCorners) {
+    constructor(world, world3d, allWalls, allCorners, walls3d) {
         this.world = world;
         this.world3d = world3d;
         this.allWalls = allWalls;
         this.allCorners = allCorners;
         this.cornersInView = [];
         this.allRays = [];
+        this.allSpriteRays = [];
         this.moveDirRays = {
             foreward: Infinity,
             left: Infinity,
@@ -30,13 +31,19 @@ export default class LightSource {
         this.moveDirFB = null;
         this.moveDirLR = null;
         this.moveDirStrafe = null;
-        this.walls3d = new Walls3d(world3d, this.fov);
+        this.walls3d = walls3d;
         this.flashlight = document.querySelector('.flashlight');
         this.fovRad = this.fov * (Math.PI / 180);
         this.distToProjectionPlane = (world3d.width / 2) / Math.tan(this.fovRad / 2);
         this.rayAngles = [];
         this.rayDensityAdjustment = 12;
         this.fullscreen = false;
+        this.sprites = [{
+            x1: 20,
+            y1: 20,
+            x2: 20,
+            y2: 30
+        }]
     }
 
     setFullscreen(isFS) {
@@ -252,6 +259,7 @@ export default class LightSource {
         const ctx = world.getContext('2d');
         const r = 1;
         this.allRays = [];
+        this.allSpriteRays = [];
         this.cornersInView = [];
         const rotation = ((this.rotation % 360) + 360) % 360;
         // let moveDirRaysFound = false;
@@ -260,6 +268,8 @@ export default class LightSource {
         for (let i = 0; i < this.rayAngles.length; i ++) {
             let closest = null;
             let record = Infinity;
+            let closestSprite = null;
+            let recordSprite = Infinity;
             let recordCornerRayDiff = Infinity;
             
             for (const wall of this.allWalls) {
@@ -274,6 +284,22 @@ export default class LightSource {
                     if (d <= record) {
                         record = d;
                         closest = intersection;
+                    }
+                }
+            }
+
+            for (const sprite of this.sprites) {
+                const intersection = this.getIntersection(x, y, r, this.rayAngles[i], sprite, rotation);
+
+                if (intersection) {
+                    const dx = Math.abs(x - intersection[0]);
+                    const dy = Math.abs(y - intersection[1]);
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    
+                    recordSprite = Math.min(d, recordSprite);
+                    if (d <= recordSprite) {
+                        recordSprite = d;
+                        closestSprite = intersection;
                     }
                 }
             }
@@ -308,6 +334,23 @@ export default class LightSource {
                 this.allRays.push(record);
             } else {
                 this.allRays.push(Infinity);
+            }
+
+            if (closestSprite) {
+                const spriteRayAngle = (closestSprite[0] - x) < 0 
+                ? 270 - Math.atan((closestSprite[1] - y) / -(closestSprite[0] - x)) * 180 / Math.PI
+                : 90 + Math.atan((closestSprite[1] - y) / (closestSprite[0] - x)) * 180 / Math.PI
+                const rayRotDiff = spriteRayAngle - (rotation + 90);
+                const spritePosOnScreen = rayRotDiff / this.fov + 0.5;
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(closestSprite[0], closestSprite[1]);
+                ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                this.allSpriteRays.push({rayLength: recordSprite, percAcrScreen: spritePosOnScreen});
             }
         }
 
@@ -406,6 +449,6 @@ export default class LightSource {
             this.moveDirRays.backward = Infinity;
         }
 
-        this.walls3d.draw(this.allRays, this.cornersInView);
+        this.walls3d.draw(this.allRays, this.allSpriteRays, this.cornersInView);
     }
 }
