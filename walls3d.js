@@ -7,21 +7,63 @@ export default class Walls3d {
         this.wallTexture = new Image();
         this.wallTexture.src = './wallTexture.jpg';
         this.worldHalfHeight = world3d.height / 2;
-        // this.wallTexturePattern = this.ctx.createPattern(this.wallTexture, 'repeat');
+        this.wallCenterHeightOriginal = this.world3d.height / 2.5;
+        this.jumpStep = 6;
+        this.jumpIterations = 0;
+        this.isJumping = false;
+        this.rayNum = 0;
+        this.spriteNum = 0;
     }
 
-    draw(rays, cornerRays) {
-        const rayNum = rays.length;
+    setJumping(isJumping) {
+        this.isJumping = isJumping;
+    }
+
+    jump(ray, wallCenterHeight, rayIndex) {
+        if (rayIndex === (this.rayNum - 1) + (this.spriteNum - 1)) {
+            this.jumpStep -= 0.2;
+            this.jumpIterations += 1;
+        } 
+
+        const jumpOffset = this.world3d.height / ray;
+
+        if (this.jumpStep > 0) {
+            return wallCenterHeight += this.jumpStep * this.jumpIterations * jumpOffset;
+        } else if (wallCenterHeight > this.wallCenterHeightOriginal) {
+            return wallCenterHeight += this.jumpStep * this.jumpIterations * jumpOffset;
+        } else if (wallCenterHeight <= this.wallCenterHeightOriginal) {
+            this.jumpStep = 6;
+            this.isJumping = false;
+            this.jumpIterations = 0;
+        } 
+        return wallCenterHeight;
+    }
+
+    draw(rays, spriteRays, cornerRays) {
+        this.rayNum = rays.length;
+        this.spriteNum = spriteRays.length;
+        const wallWidth = this.world3d.width / rays.length;
+        const wallWidthOversized = wallWidth + 1;
+        // const spriteWidth = this.world3d.width / spriteRayNum;
+        const spriteWidthOversized = wallWidth + 12;
         let wallX = 0;
         // let cornerPoint = null;
-        for (const ray of rays) {
-            let wallWidth = this.world3d.width / rayNum;
-            const wallWidthOversized = wallWidth + 1;
+        for (let i=0; i<rays.length; i++) {
+            const ray = rays[i];
 
             // const fovRad = this.fov * (Math.PI / 180);
-            const wallShiftAmt = this.worldHalfHeight / 4;
-            const wallStartTop = ((this.worldHalfHeight) - (this.world3d.height * 50) / ray) - wallShiftAmt;
-            const wallEndBottom = this.world3d.height - wallStartTop - wallShiftAmt;
+            // const wallShiftAmt = this.worldHalfHeight / 4;
+            const wallShiftAmt = (this.world3d.height * 50) / ray;
+            let wallCenterHeight = this.wallCenterHeightOriginal;
+
+            if (this.isJumping) {
+                wallCenterHeight = this.jump(ray, wallCenterHeight, i);
+            }
+            
+            const wallStartTop = wallCenterHeight - wallShiftAmt;
+            const wallEndBottom = wallCenterHeight + wallShiftAmt;
+            // const wallHeight = wallEndBottom - wallStartTop;
+
 
             let wallDarkness = ray / this.world3d.height;
             wallDarkness = ((this.world3dDiag - ray) / this.world3dDiag);
@@ -67,8 +109,35 @@ export default class Walls3d {
                     this.ctx.stroke();
                 }
             }
-
+            
             wallX += wallWidth;
+        }
+
+        for (let i=0; i<spriteRays.length; i++) {
+            const rayLength = spriteRays[i].rayLength;
+            const percAcrScreen = spriteRays[i].percAcrScreen;
+            const spriteX = this.world3d.width * percAcrScreen;
+
+            const wallShiftAmt = (this.world3d.height * 50) / rayLength / 4;
+            let wallCenterHeight = this.wallCenterHeightOriginal;
+
+            if (this.isJumping) {
+                wallCenterHeight = this.jump(rayLength, wallCenterHeight, i + (rays.length));
+            }
+            
+            const wallStartTop = wallCenterHeight - wallShiftAmt;
+            const wallEndBottom = wallCenterHeight + wallShiftAmt;
+
+            let wallDarkness = ((this.world3dDiag - rayLength) / this.world3dDiag);
+
+            const wallGradient = this.ctx.createLinearGradient(spriteX + spriteWidthOversized / 2, wallEndBottom, spriteX + spriteWidthOversized / 2, wallStartTop);
+            wallGradient.addColorStop(0, `rgba(${205 * wallDarkness},${190 * wallDarkness},${26 * wallDarkness},1)`);
+            wallGradient.addColorStop(1, `rgba(${245 * wallDarkness},${230 * wallDarkness},${66 * wallDarkness},1)`);
+            
+            this.ctx.fillStyle = wallGradient;
+            this.ctx.fillRect(spriteX, wallStartTop, spriteWidthOversized, wallEndBottom - wallStartTop);
+
+            // wallDarkness = wallDarkness + 0.5;
         }
     }
 }

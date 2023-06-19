@@ -1,6 +1,7 @@
 import LightSource from './lightSource.js';
 import Walls from './walls.js';
 import Build from './build.js';
+import Walls3d from './walls3d.js';
 import defaultWalls from './defaultWorld.json' assert { type: 'json'};
 
 const qualitySlider = document.querySelector('#quality');
@@ -49,6 +50,7 @@ const fps = 144;
 
 let walls;
 let lightSource;
+const walls3d = new Walls3d(world3d, 45);
 let build = new Build(worldCreation, world);
 
 let sprinting = false;
@@ -100,12 +102,14 @@ const gameLoop = () => {
             bgTopX = 0;
         }
 
-        const skyEndY = world3d.height * 0.4;
+        const skyEndY = world3d.height / 2.5;
+        // const skyEndY = walls3d.wallCenterHeight + walls3d.jumpVel;
 
-        ctx3d.drawImage(bgTopImg, bgTopX, 0, bgTopImg.width, skyEndY);
-        ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, 0, bgTopImg.width, skyEndY);
+        ctx3d.drawImage(bgTopImg, bgTopX, skyEndY, bgTopImg.width, -bgTopImg.height);
+        ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, skyEndY, bgTopImg.width, -bgTopImg.height);
         ctx3d.fillStyle = `rgba(0,0,0,0.7)`;
         ctx3d.fillRect(0, 0, world3d.width, skyEndY);
+
         ctx3d.fillStyle = `rgb(15, 35, 15)`;
         ctx3d.fillRect(0, skyEndY, world3d.width, world3d.height);
 
@@ -119,6 +123,20 @@ const gameLoop = () => {
         ctx3d.ellipse(world3d.width/2, world3d.height/2, 3, 3, 0, 0, 2 * Math.PI);
         ctx3d.stroke();
     }
+}
+
+const jump = () => {
+    if (this.isJumping) {
+        this.jumpVel -= 0.4;
+        if (this.jumpVel > 0) {
+            this.wallCenterHeight += this.jumpVel;
+        } else if (this.wallCenterHeight > this.wallCenterHeightOriginal) {
+            this.wallCenterHeight += this.jumpVel;
+        } else if (this.wallCenterHeight <= this.wallCenterHeightOriginal) {
+            this.jumpVel = 10;
+            this.isJumping = false;
+        }
+    } 
 }
 
 const beginLoop = () => {
@@ -144,7 +162,7 @@ const beginLoop = () => {
         walls = new Walls(world, 5);
     }
 
-    lightSource = new LightSource(world, world3d, [], []);
+    lightSource = new LightSource(world, world3d, [], [], walls3d);
     applySavedValues();
     lightSource.setAngles();
 
@@ -270,6 +288,10 @@ document.addEventListener('keydown', (e) => {
         sprinting = true;
         lightSource.moveAmt = lightSource.moveAmtTop * 2;
     }
+
+    if (e.code === 'Space') {
+        walls3d.setJumping(true);
+    }
 })
 
 document.addEventListener('keyup', (e) => {
@@ -289,15 +311,8 @@ document.addEventListener('keyup', (e) => {
     if ((e.code === 'KeyW') || (e.code === 'KeyS')) {
         lightSource.setMoveDir(null);
         localStorage.setItem('playerPos', JSON.stringify(lightSource.getPlayerPos()));
-    } 
-
-    //Reset everything
-    // if (e.code === 'Space') {
-    //     if (requestID) {
-    //         cancelAnimationFrame(requestID);
-    //     }
-    //     beginLoop(60);
-    // }
+    }
+    
 
     //Toggle fullscreen
     if (e.code === 'Enter') {
