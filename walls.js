@@ -3,10 +3,19 @@ export default class Walls {
         this.world = world;
         this.walls = [];
         this.sprites = [];
+        this.perpSprites = [];
         this.corners = [];
         this.wallNum = wallNum;
         this.minWallWidth = 10;
         this.maxWallWidth = 20;
+        this.playerX = 0;
+        this.playerY = 0;
+        this.spriteWidth = 10;
+    }
+
+    setPlayerPos([x, y]) {
+        this.playerX = x;
+        this.playerY = y;
     }
 
     getWalls() {
@@ -40,6 +49,10 @@ export default class Walls {
         }
 
         return [...this.walls];
+    }
+
+    getSprites() {
+        return [...this.perpSprites];
     }
 
     pointIsBetween(x1, y1, x2, y2, px, py) {
@@ -94,15 +107,16 @@ export default class Walls {
     }
 
     setWalls(allWalls) {
-        this.walls = allWalls;
+        this.walls = [...allWalls];
     }
 
     setSprites(sprites) {
-        this.sprites = sprites;
+        this.sprites = [...sprites];
+        this.perpSprites = [...sprites];
     }
 
     setCorners(corners) {
-        this.corners = corners;
+        this.corners = [...corners];
     }
 
     // build = () => {
@@ -175,7 +189,33 @@ export default class Walls {
     //     return [this.walls, this.corners];
     // }
 
+    toDegrees(angle) {
+        return angle * (180 / Math.PI);
+    }
+
+    toRadians(angle) {
+        return angle * (Math.PI / 180);
+    }
+    
+    makeSpritesPerp() {
+        const deltaD = this.spriteWidth / 2;
+        for (let i=0; i<this.sprites.length; i++) {
+            if (!this.perpSprites[i]) this.perpSprites.push({});
+            const {x, y} = this.sprites[i];
+            const slope = (y - this.playerY) / (x - this.playerX);
+            const perpSlope = -(1/slope);
+            const perpAngle = this.toDegrees(Math.atan(perpSlope));
+            let angle1 = ((perpAngle % 360) + 360) % 360;
+            
+            this.perpSprites[i].x1 = x + (deltaD * Math.cos(this.toRadians(angle1)));
+            this.perpSprites[i].y1 = y + (deltaD * Math.sin(this.toRadians(angle1)));
+            this.perpSprites[i].x2 = x - (deltaD * Math.cos(this.toRadians(angle1)));
+            this.perpSprites[i].y2 = y - (deltaD * Math.sin(this.toRadians(angle1)));
+        }
+    }
+
     draw() {
+        this.makeSpritesPerp();
         const ctx = this.world.getContext('2d');
 
         for (const line of this.walls) {;
@@ -187,7 +227,7 @@ export default class Walls {
             ctx.stroke();
         }
        
-        for (const sprite of this.sprites) {;
+        for (const sprite of this.perpSprites) {;
             ctx.beginPath();
             ctx.moveTo(sprite.x1, sprite.y1);
             ctx.lineTo(sprite.x2, sprite.y2);

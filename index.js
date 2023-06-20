@@ -116,6 +116,9 @@ const gameLoop = () => {
         ctx3d.fillStyle = `rgb(15, 35, 15)`;
         ctx3d.fillRect(0, skyEndY, world3d.width, world3d.height);
 
+        const sprites = walls.getSprites();
+        lightSource.setSprites(sprites);
+
         lightSource.draw(); 
         lightSource.rotate();
         lightSource.move();
@@ -125,6 +128,9 @@ const gameLoop = () => {
         ctx3d.beginPath();
         ctx3d.ellipse(world3d.width/2, world3d.height/2, 3, 3, 0, 0, 2 * Math.PI);
         ctx3d.stroke();
+
+        const playerPos = lightSource.getPlayerPos();
+        walls.setPlayerPos(playerPos)
     }
 }
 
@@ -188,7 +194,7 @@ function applySavedValues() {
 
     showCorners = showCornersSaved;
 
-    if (savedWalls) {
+    if (savedWalls?.[0]?.x1 !== undefined) {
         walls.setWalls(savedWalls);
         lightSource.setWalls(savedWalls);
         if (showCorners) {
@@ -209,13 +215,13 @@ function applySavedValues() {
         localStorage.setItem('walls', JSON.stringify([...defaultWalls]))
     }
 
-    if (savedSprites) {
+    if (savedSprites?.[0]?.x !== undefined) {
         walls.setSprites(savedSprites);
         lightSource.setSprites(savedSprites);
     } else {
         walls.setSprites([...defaultSprites]);
         lightSource.setSprites([...defaultSprites]);
-        localStorage.setItem('walls', JSON.stringify([...defaultSprites]))
+        localStorage.setItem('sprites', JSON.stringify([...defaultSprites]))
     }
 
     if (savedFOV) {
@@ -273,7 +279,7 @@ document.addEventListener('mousemove', (e) => {
 })
 
 document.addEventListener('keydown', (e) => {
-    //Sest move forewards and backwards
+    //Set move forewards and backwards
     if (e.code === 'KeyW') {
         lightSource.setMoveDir('forwards');
     }  else if (e.code === 'KeyS') {
@@ -469,12 +475,11 @@ clearEditorBtn.onclick = () => {
 saveWallsBtn.onclick = () => {
     const newWalls = build.getWalls();
     const newSprites = build.getSprites();
-    
     walls.setWalls(newWalls);
+    walls.setSprites(newSprites);
     lightSource.setWalls(newWalls);
 
-    walls.setSprites(newSprites);
-    lightSource.setSprites(newSprites);
+    // lightSource.setSprites(newSprites);
 
     if (showCorners) {
         const corners = walls.getCorners();

@@ -33,10 +33,8 @@ export default class Build {
 
     addSpritePoint() {
        this.sprites.push({
-            x1: this.mousePos.x,
-            y1: this.mousePos.y - 5,
-            x2: this.mousePos.x,
-            y2: this.mousePos.y + 5
+            x: this.mousePos.x,
+            y: this.mousePos.y,
        }) 
     }
 
@@ -95,6 +93,7 @@ export default class Build {
 
     clearWalls() {
         this.walls = [];
+        this.sprites = [];
         this.allPoints = [];
         this.p1 = {};
         this.mousePos = {};
@@ -173,11 +172,9 @@ export default class Build {
 
         for (let sprite of this.sprites) {
             this.ctx.beginPath();
-            this.ctx.moveTo(sprite.x1, sprite.y1);
-            this.ctx.lineTo(sprite.x2, sprite.y2);
-            this.ctx.lineWidth = 6;
-            this.ctx.strokeStyle = "rgba(245,230,66,0.8)";
-            this.ctx.stroke();
+            this.ctx.fillStyle = "rgba(245,230,66,0.8)";
+            this.ctx.ellipse(sprite.x, sprite.y, 8, 8, Math.PI / 4, 0, 2 * Math.PI);
+            this.ctx.fill();
         }
 
         if (this.p1?.x) {
@@ -190,12 +187,10 @@ export default class Build {
         }
 
         if (this.addingSprite) {
+            this.ctx.fillStyle = "rgba(245,230,66,0.8)";
             this.ctx.beginPath();
-            this.ctx.moveTo(this.mousePos.x, this.mousePos.y + 5);
-            this.ctx.lineTo(this.mousePos.x, this.mousePos.y - 5);
-            this.ctx.lineWidth = 6;
-            this.ctx.strokeStyle = "rgba(245,230,66,0.8)";
-            this.ctx.stroke();
+            this.ctx.ellipse(this.mousePos.x, this.mousePos.y, 8, 8, Math.PI / 4, 0, 2 * Math.PI);
+            this.ctx.fill();
         }
     }
 }
