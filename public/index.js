@@ -2,7 +2,8 @@ import LightSource from './lightSource.js';
 import Walls from './walls.js';
 import Build from './build.js';
 import Walls3d from './walls3d.js';
-import defaultWalls from './defaultWorld.json' assert { type: 'json'};
+import defaultWalls from './defaultWalls.json' assert { type: 'json'};
+import defaultSprites from './defaultSprites.json' assert { type: 'json'};
 
 const qualitySlider = document.querySelector('#quality');
 const qualityValue = document.querySelector('#qualityValue');
@@ -12,14 +13,16 @@ const resetSettingsBtn = document.querySelector('#resetSettingsBtn');
 const settingsBtn = document.querySelector('#settingsBtn');
 const settings = document.querySelector('.settings');
 const worldCreationContainer = document.querySelector('.worldCreationContainer');
-const wallEditorBtn = document.querySelector('#wallEditorBtn');
-const exitEditorBtn = document.querySelector('#exitEditorBtn');
-const undoBtn = document.querySelector('#undoBtn');
-const clearEditorBtn = document.querySelector('#clearEditorBtn');
-const defaultMapBtn = document.querySelector('#defaultMapBtn');
-const saveWallsBtn = document.querySelector('#saveWallsBtn');
 const toggleFPSBtn = document.querySelector('#toggleFPSBtn');
 const toggleCornersBtn = document.querySelector('#toggleCornersBtn');
+const wallEditorBtn = document.querySelector('#wallEditorBtn');
+
+const saveWallsBtn = document.querySelector('#saveWallsBtn');
+const undoBtn = document.querySelector('#undoBtn');
+const addSpriteBtn = document.querySelector('#addSpriteBtn');
+const clearEditorBtn = document.querySelector('#clearEditorBtn');
+const defaultMapBtn = document.querySelector('#defaultMapBtn');
+const exitEditorBtn = document.querySelector('#exitEditorBtn');
 
 const fpsCounter = document.querySelector('.fpsCounter');
 const fpsValue = document.querySelector('.fpsValue');
@@ -177,6 +180,7 @@ function applySavedValues() {
     const savedFOV = JSON.parse(localStorage.getItem('fov'));
     const savedRayDensity = JSON.parse(localStorage.getItem('rayDensity'));
     const savedWalls = JSON.parse(localStorage.getItem('walls'));
+    const savedSprites = JSON.parse(localStorage.getItem('sprites'));
     const fpsOn = JSON.parse(localStorage.getItem('fpsOn'));
     const playerPos = JSON.parse(localStorage.getItem('playerPos'));
     const playerRot = JSON.parse(localStorage.getItem('playerRot'));
@@ -203,6 +207,15 @@ function applySavedValues() {
             toggleCornersBtn.classList.add('active');
         } else toggleCornersBtn.classList.remove('active');
         localStorage.setItem('walls', JSON.stringify([...defaultWalls]))
+    }
+
+    if (savedSprites) {
+        walls.setSprites(savedSprites);
+        lightSource.setSprites(savedSprites);
+    } else {
+        walls.setSprites([...defaultSprites]);
+        lightSource.setSprites([...defaultSprites]);
+        localStorage.setItem('walls', JSON.stringify([...defaultSprites]))
     }
 
     if (savedFOV) {
@@ -239,9 +252,8 @@ document.addEventListener('click', (e) => {
     if (e.target.id === 'worldCreation') {
         const canvasPosX = e.clientX - e.target.getBoundingClientRect().x;
         const canvasPosY = e.clientY - e.target.getBoundingClientRect().y;
-    
-        build.addPoint(canvasPosX, canvasPosY);
-        build.setP2Temp(canvasPosX, canvasPosY);
+
+        build.handleWorldClick(canvasPosX, canvasPosY);
     }
 })
 
@@ -256,7 +268,7 @@ document.addEventListener('mousemove', (e) => {
     if (e.target.id === 'worldCreation') {
         const canvasPosX = e.clientX - e.target.getBoundingClientRect().x;
         const canvasPosY = e.clientY - e.target.getBoundingClientRect().y;
-        build.setP2Temp(canvasPosX, canvasPosY);
+        build.setMousePos(canvasPosX, canvasPosY);
     }
 })
 
@@ -412,8 +424,10 @@ function enterEditor() {
 
 wallEditorBtn.onclick = () => {
     if (!editMode) {
-        const newWalls = JSON.parse(localStorage.getItem('walls'));
-        if (newWalls) build.setWalls(newWalls);
+        const savedWalls = JSON.parse(localStorage.getItem('walls'));
+        const savedSprites = JSON.parse(localStorage.getItem('sprites'));
+        if (savedWalls) build.setWalls(savedWalls);
+        if (savedSprites) build.setSprites(savedSprites);
         enterEditor();
     }
 }
@@ -454,8 +468,14 @@ clearEditorBtn.onclick = () => {
 
 saveWallsBtn.onclick = () => {
     const newWalls = build.getWalls();
+    const newSprites = build.getSprites();
+    
     walls.setWalls(newWalls);
     lightSource.setWalls(newWalls);
+
+    walls.setSprites(newSprites);
+    lightSource.setSprites(newSprites);
+
     if (showCorners) {
         const corners = walls.getCorners();
         walls.setCorners(corners);
@@ -464,12 +484,27 @@ saveWallsBtn.onclick = () => {
     }
 
     localStorage.setItem('walls', JSON.stringify(newWalls))
+    localStorage.setItem('sprites', JSON.stringify(newSprites))
 
     exitEditor()
 }
 
 undoBtn.onclick = () => build.removeLastWall();
 
+addSpriteBtn.onclick = () => {
+    const addingSprite = !build.getAddingSprite();
+    
+    if (addingSprite) {
+        addSpriteBtn.classList.add('active');
+        build.clearCurLines();
+    } else {
+        addSpriteBtn.classList.remove('active');
+    }
+
+    build.setAddingSprite(addingSprite);
+}
+
 defaultMapBtn.onclick = () => {
     build.setWalls([...defaultWalls]);
+    build.setSprites([...defaultSprites]);
 }
