@@ -10,6 +10,7 @@ export default class Walls {
         this.maxWallWidth = 20;
         this.playerX = 0;
         this.playerY = 0;
+        this.spriteWidth = 10;
     }
 
     setPlayerPos([x, y]) {
@@ -197,6 +198,7 @@ export default class Walls {
     }
     
     makeSpritesPerp() {
+        const deltaD = this.spriteWidth / 2;
         for (let i=0; i<this.sprites.length; i++) {
             if (!this.perpSprites[i]) this.perpSprites.push({});
             const {x, y} = this.sprites[i];
@@ -205,19 +207,15 @@ export default class Walls {
             const perpAngle = this.toDegrees(Math.atan(perpSlope));
             let angle1 = ((perpAngle % 360) + 360) % 360;
             
-            this.perpSprites[i].x1 = x + (10 * Math.cos(this.toRadians(angle1)));
-            this.perpSprites[i].y1 = y + (10 * Math.sin(this.toRadians(angle1)));
-            this.perpSprites[i].x2 = x - (10 * Math.cos(this.toRadians(angle1)));
-            this.perpSprites[i].y2 = y - (10 * Math.sin(this.toRadians(angle1)));
+            this.perpSprites[i].x1 = x + (deltaD * Math.cos(this.toRadians(angle1)));
+            this.perpSprites[i].y1 = y + (deltaD * Math.sin(this.toRadians(angle1)));
+            this.perpSprites[i].x2 = x - (deltaD * Math.cos(this.toRadians(angle1)));
+            this.perpSprites[i].y2 = y - (deltaD * Math.sin(this.toRadians(angle1)));
         }
     }
 
     draw() {
         this.makeSpritesPerp();
-        // const ang = ((-40.9 % 360) + 360) % 360;
-        // const newAng = ((ang + 90) % 360) % 360;
-        // const newAng2 = ((ang - 90) % 360) % 360;
-
         const ctx = this.world.getContext('2d');
 
         for (const line of this.walls) {;

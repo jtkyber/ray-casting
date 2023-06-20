@@ -194,7 +194,7 @@ function applySavedValues() {
 
     showCorners = showCornersSaved;
 
-    if (savedWalls?.[0]?.x1) {
+    if (savedWalls?.[0]?.x1 !== undefined) {
         walls.setWalls(savedWalls);
         lightSource.setWalls(savedWalls);
         if (showCorners) {
@@ -215,7 +215,7 @@ function applySavedValues() {
         localStorage.setItem('walls', JSON.stringify([...defaultWalls]))
     }
 
-    if (savedSprites?.[0]?.x) {
+    if (savedSprites?.[0]?.x !== undefined) {
         walls.setSprites(savedSprites);
         lightSource.setSprites(savedSprites);
     } else {
