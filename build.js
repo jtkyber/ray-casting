@@ -5,23 +5,44 @@ export default class Build {
         this.ctx = this.worldCreation.getContext('2d');
         this.lineActive = false;
         this.walls = [];
+        this.sprites = [];
         this.p1 = {};
-        this.p2Temp = {};
+        this.mousePos= {};
         this.allPoints = [];
         this.pointColor = 'rgba(255,0,0,1)';
         this.actualCanvasWidth = 1920;
         this.actualCanvasHeight = 1200;
+        this.addingSprite = false;
     }
 
-    setWalls(walls) {
-        this.allPoints = [];
+    setSprites(sprites) {
+        this.sprites = sprites;
+    }
+
+    getSprites() {
+        return [...this.sprites];
+    }
+    
+    setAddingSprite(addingSprite) {
+        this.addingSprite = addingSprite;
+    }
+
+    getAddingSprite() {
+        return this.addingSprite;
+    }
+
+    addSpritePoint() {
+       this.sprites.push({
+            x1: this.mousePos.x,
+            y1: this.mousePos.y - 5,
+            x2: this.mousePos.x,
+            y2: this.mousePos.y + 5
+       }) 
+    }
+
+    clearCurLines() {
         this.p1 = {};
-        this.p2Temp = {};
-        this.walls = walls;
-        for (let wall of this.walls) {
-            this.allPoints.push({x: wall.x1, y: wall.y1})
-            this.allPoints.push({x: wall.x2, y: wall.y2})
-        }
+        this.mousePos = {};
     }
 
     getWalls() {
@@ -30,6 +51,17 @@ export default class Build {
         }
 
         return [...this.walls];
+    }
+
+    setWalls(walls) {
+        this.allPoints = [];
+        this.p1 = {};
+        this.mousePos = {};
+        this.walls = walls;
+        for (let wall of this.walls) {
+            this.allPoints.push({x: wall.x1, y: wall.y1})
+            this.allPoints.push({x: wall.x2, y: wall.y2})
+        }
     }
 
     addEdgeWalls() {
@@ -65,7 +97,7 @@ export default class Build {
         this.walls = [];
         this.allPoints = [];
         this.p1 = {};
-        this.p2Temp = {};
+        this.mousePos = {};
     }
 
     removeLastWall() {
@@ -75,8 +107,13 @@ export default class Build {
         this.allPoints.pop();
     }
 
-    setP2Temp(x, y) {
-        if (this.p1?.x) this.p2Temp = {x, y}
+    setMousePos(canvasPosX, canvasPosY) {
+        if (this.p1?.x || this.addingSprite) {
+            const actualToDisplayedRatioX = this.actualCanvasWidth/this.worldCreation.getBoundingClientRect().width;
+            const actualToDisplayedRatioY = this.actualCanvasHeight/this.worldCreation.getBoundingClientRect().height;
+            this.mousePos.x = canvasPosX * actualToDisplayedRatioX;
+            this.mousePos.y = canvasPosY * actualToDisplayedRatioY;
+        }
     }
 
     addPoint(canvasPosX, canvasPosY) {
@@ -116,27 +153,48 @@ export default class Build {
         this.allPoints.push({x, y})
     }
 
+    handleWorldClick(canvasPosX, canvasPosY) {
+        if (this.addingSprite) {
+            this.addSpritePoint(canvasPosX, canvasPosY);
+        } else {
+            this.addPoint(canvasPosX, canvasPosY);
+        }
+    }
+
     draw() {
-        for (let point of this.walls) {
+        for (let walls of this.walls) {
             this.ctx.beginPath();
-            this.ctx.moveTo(point.x1, point.y1);
-            this.ctx.lineTo(point.x2, point.y2);
+            this.ctx.moveTo(walls.x1, walls.y1);
+            this.ctx.lineTo(walls.x2, walls.y2);
             this.ctx.lineWidth = 2;
             this.ctx.strokeStyle = "rgba(255,255,255,0.8)";
             this.ctx.stroke();
         }
 
-        if (this.p1?.x) {
-            const actualToDisplayedRatioX = this.actualCanvasWidth/this.worldCreation.getBoundingClientRect().width;
-            const actualToDisplayedRatioY = this.actualCanvasHeight/this.worldCreation.getBoundingClientRect().height;
-            let x = this.p2Temp.x * actualToDisplayedRatioX;
-            let y = this.p2Temp.y * actualToDisplayedRatioY;
+        for (let sprite of this.sprites) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(sprite.x1, sprite.y1);
+            this.ctx.lineTo(sprite.x2, sprite.y2);
+            this.ctx.lineWidth = 6;
+            this.ctx.strokeStyle = "rgba(245,230,66,0.8)";
+            this.ctx.stroke();
+        }
 
+        if (this.p1?.x) {
             this.ctx.beginPath();
             this.ctx.moveTo(this.p1.x, this.p1.y);
-            this.ctx.lineTo(x, y);
+            this.ctx.lineTo(this.mousePos.x, this.mousePos.y);
             this.ctx.lineWidth = 2;
             this.ctx.strokeStyle = "rgba(255,255,255,0.8)";
+            this.ctx.stroke();
+        }
+
+        if (this.addingSprite) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.mousePos.x, this.mousePos.y + 5);
+            this.ctx.lineTo(this.mousePos.x, this.mousePos.y - 5);
+            this.ctx.lineWidth = 6;
+            this.ctx.strokeStyle = "rgba(245,230,66,0.8)";
             this.ctx.stroke();
         }
     }

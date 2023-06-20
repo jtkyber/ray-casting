@@ -38,12 +38,7 @@ export default class LightSource {
         this.rayAngles = [];
         this.rayDensityAdjustment = 12;
         this.fullscreen = false;
-        this.sprites = [{
-            x1: 20,
-            y1: 20,
-            x2: 20,
-            y2: 30
-        }]
+        this.sprites = [];
     }
 
     setFullscreen(isFS) {
@@ -56,6 +51,10 @@ export default class LightSource {
 
     setWalls(walls) {
         this.allWalls = walls;
+    }
+
+    setSprites(sprites) {
+        this.sprites = sprites;
     }
 
     setCorners(corners) {
@@ -295,6 +294,7 @@ export default class LightSource {
                     const dx = Math.abs(x - intersection[0]);
                     const dy = Math.abs(y - intersection[1]);
                     const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d > record) continue;
                     
                     recordSprite = Math.min(d, recordSprite);
                     if (d <= recordSprite) {
@@ -337,23 +337,28 @@ export default class LightSource {
             }
 
             if (closestSprite) {
-                const spriteRayAngle = (closestSprite[0] - x) < 0 
+                let spriteRayAngle = (closestSprite[0] - x) < 0 
                 ? 270 - Math.atan((closestSprite[1] - y) / -(closestSprite[0] - x)) * 180 / Math.PI
                 : 90 + Math.atan((closestSprite[1] - y) / (closestSprite[0] - x)) * 180 / Math.PI
-                const rayRotDiff = spriteRayAngle - (rotation + 90);
+                spriteRayAngle = (((spriteRayAngle - 90) % 360) + 360) % 360;
+                let rayRotDiff = spriteRayAngle - rotation;
+                if (Math.abs(rayRotDiff) > this.fov / 2) {
+                    rayRotDiff = rayRotDiff >= 0 
+                    ? rayRotDiff - 360
+                    : 360 + rayRotDiff
+                }
                 const spritePosOnScreen = rayRotDiff / this.fov + 0.5;
-
+                
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 ctx.lineTo(closestSprite[0], closestSprite[1]);
-                ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`;
+                ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`;
                 ctx.lineWidth = 1;
                 ctx.stroke();
 
                 this.allSpriteRays.push({rayLength: recordSprite, percAcrScreen: spritePosOnScreen});
             }
         }
-
 
         //get lengths for rays going in directions that the player can move in (F,B,L,R)
         const rotationF = ((this.rotation % 360) + 360) % 360;

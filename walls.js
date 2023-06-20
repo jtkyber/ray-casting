@@ -2,6 +2,7 @@ export default class Walls {
     constructor(world, wallNum) {
         this.world = world;
         this.walls = [];
+        this.sprites = [];
         this.corners = [];
         this.wallNum = wallNum;
         this.minWallWidth = 10;
@@ -96,6 +97,10 @@ export default class Walls {
         this.walls = allWalls;
     }
 
+    setSprites(sprites) {
+        this.sprites = sprites;
+    }
+
     setCorners(corners) {
         this.corners = corners;
     }
@@ -179,6 +184,15 @@ export default class Walls {
             ctx.lineTo(line.x2, line.y2);
             ctx.lineWidth = 3;
             ctx.strokeStyle = "rgba(255,255,255,0.8)";
+            ctx.stroke();
+        }
+       
+        for (const sprite of this.sprites) {;
+            ctx.beginPath();
+            ctx.moveTo(sprite.x1, sprite.y1);
+            ctx.lineTo(sprite.x2, sprite.y2);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "rgba(245,230,66,1)";
             ctx.stroke();
         }
 

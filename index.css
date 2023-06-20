@@ -237,6 +237,12 @@ body {
                     &:hover {
                         opacity: 0.6;
                     }
+
+                    &#addSpriteBtn {
+                        &.active {
+                            opacity: 0.6;
+                        }
+                    }
                 }
             }
         }

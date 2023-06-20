@@ -136,8 +136,6 @@ export default class Walls3d {
             
             this.ctx.fillStyle = wallGradient;
             this.ctx.fillRect(spriteX, wallStartTop, spriteWidthOversized, wallEndBottom - wallStartTop);
-
-            // wallDarkness = wallDarkness + 0.5;
         }
     }
 }
