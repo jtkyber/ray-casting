@@ -107,12 +107,12 @@ export default class Build {
     }
 
     setMousePos(canvasPosX, canvasPosY) {
-        if (this.p1?.x || this.addingSprite) {
+        // if (this.p1?.x || this.addingSprite) {
             const actualToDisplayedRatioX = this.actualCanvasWidth/this.worldCreation.getBoundingClientRect().width;
             const actualToDisplayedRatioY = this.actualCanvasHeight/this.worldCreation.getBoundingClientRect().height;
             this.mousePos.x = canvasPosX * actualToDisplayedRatioX;
             this.mousePos.y = canvasPosY * actualToDisplayedRatioY;
-        }
+        // }
     }
 
     addPoint(canvasPosX, canvasPosY) {
