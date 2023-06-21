@@ -20,11 +20,11 @@ export default class Walls3d {
     }
 
     jump(ray, wallCenterHeight, rayIndex) {
-        if (rayIndex === (this.rayNum - 1) + (this.spriteNum - 1)) {
+        if (rayIndex === 0) {
             this.jumpStep -= 0.2;
             this.jumpIterations += 1;
         } 
-
+        
         const jumpOffset = this.world3d.height / ray;
 
         if (this.jumpStep > 0) {
@@ -122,7 +122,7 @@ export default class Walls3d {
             let wallCenterHeight = this.wallCenterHeightOriginal;
 
             if (this.isJumping) {
-                wallCenterHeight = this.jump(rayLength, wallCenterHeight, i + (rays.length));
+                wallCenterHeight = this.jump(rayLength, wallCenterHeight, i + rays.length);
             }
             
             const wallStartTop = wallCenterHeight - wallShiftAmt;
