@@ -15,7 +15,7 @@ const settings = document.querySelector('.settings');
 const worldCreationContainer = document.querySelector('.worldCreationContainer');
 const toggleFPSBtn = document.querySelector('#toggleFPSBtn');
 const toggleCornersBtn = document.querySelector('#toggleCornersBtn');
-const wallEditorBtn = document.querySelector('#wallEditorBtn');
+const mapEditorBtn = document.querySelector('#mapEditorBtn');
 
 const saveWallsBtn = document.querySelector('#saveWallsBtn');
 const undoBtn = document.querySelector('#undoBtn');
@@ -389,7 +389,7 @@ fovSlider.oninput = () => {
 
 resetSettingsBtn.onclick = () => {
     const fovReset = 45;
-    const rayDReset = 12;
+    const rayDReset = 8;
 
     walls.setCorners([]);
     lightSource.setCorners([]);
@@ -428,7 +428,7 @@ function enterEditor() {
     editMode = true;
 }
 
-wallEditorBtn.onclick = () => {
+mapEditorBtn.onclick = () => {
     if (!editMode) {
         const savedWalls = JSON.parse(localStorage.getItem('walls'));
         const savedSprites = JSON.parse(localStorage.getItem('sprites'));
