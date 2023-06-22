@@ -118,8 +118,8 @@ export default class Walls3d {
             const percAcrScreen = spriteRays[i].percAcrScreen;
             const spriteX = this.world3d.width * percAcrScreen;
 
-            const wallShiftAmt = (this.world3d.height * 50) / rayLength / 4;
-            let wallCenterHeight = this.wallCenterHeightOriginal;
+            const wallShiftAmt = (this.world3d.height * 50) / rayLength / 4.5;
+            let wallCenterHeight = this.wallCenterHeightOriginal + wallShiftAmt * 2;
 
             if (this.isJumping) {
                 wallCenterHeight = this.jump(rayLength, wallCenterHeight, i + rays.length);
