@@ -295,14 +295,38 @@ export default class LightSource {
                     const dy = Math.abs(y - intersection[1]);
                     const d = Math.sqrt(dx * dx + dy * dy);
                     if (d > record) continue;
-                    
-                    recordSprite = Math.min(d, recordSprite);
-                    if (d <= recordSprite) {
-                        recordSprite = d;
-                        closestSprite = intersection;
+
+                    let spriteRayAngle = (intersection[0] - x) < 0 
+                    ? 270 - Math.atan((intersection[1] - y) / -(intersection[0] - x)) * 180 / Math.PI
+                    : 90 + Math.atan((intersection[1] - y) / (intersection[0] - x)) * 180 / Math.PI
+                    spriteRayAngle = (((spriteRayAngle - 90) % 360) + 360) % 360;
+                    let rayRotDiff = spriteRayAngle - rotation;
+                    if (Math.abs(rayRotDiff) > this.fov / 2) {
+                        rayRotDiff = rayRotDiff >= 0 
+                        ? rayRotDiff - 360
+                        : 360 + rayRotDiff
                     }
+                    const spritePosOnScreen = rayRotDiff / this.fov + 0.5;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(intersection[0], intersection[1]);
+                    ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    this.allSpriteRays.push({rayLength: d, percAcrScreen: spritePosOnScreen});
+
+                    
+                    // recordSprite = Math.min(d, recordSprite);
+                    // if (d <= recordSprite) {
+                    //     recordSprite = d;
+                    //     closestSprite = intersection;
+                    // }
                 }
             }
+
+            this.allSpriteRays.sort((a, b) => b.rayLength - a.rayLength)
 
             if (closest) {
                 ctx.beginPath();
@@ -337,26 +361,26 @@ export default class LightSource {
             }
 
             if (closestSprite) {
-                let spriteRayAngle = (closestSprite[0] - x) < 0 
-                ? 270 - Math.atan((closestSprite[1] - y) / -(closestSprite[0] - x)) * 180 / Math.PI
-                : 90 + Math.atan((closestSprite[1] - y) / (closestSprite[0] - x)) * 180 / Math.PI
-                spriteRayAngle = (((spriteRayAngle - 90) % 360) + 360) % 360;
-                let rayRotDiff = spriteRayAngle - rotation;
-                if (Math.abs(rayRotDiff) > this.fov / 2) {
-                    rayRotDiff = rayRotDiff >= 0 
-                    ? rayRotDiff - 360
-                    : 360 + rayRotDiff
-                }
-                const spritePosOnScreen = rayRotDiff / this.fov + 0.5;
+                // let spriteRayAngle = (closestSprite[0] - x) < 0 
+                // ? 270 - Math.atan((closestSprite[1] - y) / -(closestSprite[0] - x)) * 180 / Math.PI
+                // : 90 + Math.atan((closestSprite[1] - y) / (closestSprite[0] - x)) * 180 / Math.PI
+                // spriteRayAngle = (((spriteRayAngle - 90) % 360) + 360) % 360;
+                // let rayRotDiff = spriteRayAngle - rotation;
+                // if (Math.abs(rayRotDiff) > this.fov / 2) {
+                //     rayRotDiff = rayRotDiff >= 0 
+                //     ? rayRotDiff - 360
+                //     : 360 + rayRotDiff
+                // }
+                // const spritePosOnScreen = rayRotDiff / this.fov + 0.5;
                 
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(closestSprite[0], closestSprite[1]);
-                ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`;
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                // ctx.beginPath();
+                // ctx.moveTo(x, y);
+                // ctx.lineTo(closestSprite[0], closestSprite[1]);
+                // ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`;
+                // ctx.lineWidth = 1;
+                // ctx.stroke();
 
-                this.allSpriteRays.push({rayLength: recordSprite, percAcrScreen: spritePosOnScreen});
+                // this.allSpriteRays.push({rayLength: recordSprite, percAcrScreen: spritePosOnScreen});
             }
         }
 
