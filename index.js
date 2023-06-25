@@ -104,8 +104,7 @@ const gameLoop = () => {
 			bgTopX = 0
 		}
 
-		const skyEndY = world3d.height / 2.5
-		// const skyEndY = walls3d.wallCenterHeight + walls3d.jumpVel;
+		const skyEndY = walls3d.getWallCenterHeight()
 
 		ctx3d.drawImage(bgTopImg, bgTopX, skyEndY, bgTopImg.width, -bgTopImg.height)
 		ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, skyEndY, bgTopImg.width, -bgTopImg.height)
@@ -253,6 +252,7 @@ document.addEventListener('mousemove', e => {
 	//Set player angle and bg img position
 	if (fullscreen) {
 		lightSource.setMouseRotation(e.movementX / 20)
+		walls3d.setWallCenterHeight(e.movementY)
 		bgTopX -= ((bgTopImg.width / bgTopDividend) * e.movementX) / 20
 		localStorage.setItem('playerRot', JSON.stringify(lightSource.getRotationValue()))
 	}

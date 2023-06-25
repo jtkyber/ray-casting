@@ -15,6 +15,14 @@ export default class Walls3d {
 		this.spriteNum = 0
 	}
 
+	setWallCenterHeight(amt) {
+		this.wallCenterHeightOriginal -= amt
+	}
+
+	getWallCenterHeight() {
+		return this.wallCenterHeightOriginal
+	}
+
 	setJumping(isJumping) {
 		this.isJumping = isJumping
 	}
@@ -123,7 +131,7 @@ export default class Walls3d {
 		for (let i = 0; i < spriteRays.length; i++) {
 			const rayLength = spriteRays[i].rayLength
 			const percAcrScreen = spriteRays[i].percAcrScreen
-			const spriteX = this.world3d.width * percAcrScreen
+			const spriteX = this.world3d.width * percAcrScreen - spriteWidthOversized / 2
 
 			const wallShiftAmt = (this.world3d.height * 50) / rayLength / 4.5
 			let wallCenterHeight = this.wallCenterHeightOriginal + wallShiftAmt * 2
