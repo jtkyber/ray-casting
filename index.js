@@ -70,7 +70,7 @@ let bgTopDividend = 180
 let frames = 0
 const setFramerateValue = () => {
 	fpsValue.innerText = frames
-	fpsValue.style.color = frames < 60 ? 'red' : 'rgb(0, 255, 0)'
+	fpsValue.style.color = frames < fpsCap ? 'red' : 'rgb(0, 255, 0)'
 	frames = 0
 }
 
