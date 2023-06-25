@@ -45,7 +45,7 @@ body {
 		}
 
 		& .settings {
-			width: 20rem;
+			width: max-content;
 			height: max-content;
 			position: absolute;
 			top: 0;
@@ -70,16 +70,14 @@ body {
 			}
 
 			& .sliderContainer {
-				width: 100%;
-				display: flex;
-				flex-flow: row nowrap;
-				justify-content: center;
+				width: max-content;
+				display: grid;
+				grid-template-columns: 1fr 15rem 1fr;
 				gap: 1rem;
 				color: white;
 				font-weight: 400;
 
 				& input {
-					width: 100%;
 					-webkit-appearance: none;
 					appearance: none;
 					background: transparent;
@@ -103,7 +101,7 @@ body {
 			}
 
 			& .btnContainer {
-				width: 100%;
+				width: max-content;
 				display: flex;
 				flex-flow: row nowrap;
 				justify-content: flex-end;
