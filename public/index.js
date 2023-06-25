@@ -89,6 +89,7 @@ const gameLoop = () => {
 
 		//multiply bg img width by 4 so when you rotate 90deg, you're 1/4th through the img
 		bgTopImg.width = world3d.width * 2
+		bgTopImg.height = world3d.height
 
 		//move the bg img when rotating with keys
 		if (lightSource.moveDirLR === 'left') {
@@ -105,6 +106,7 @@ const gameLoop = () => {
 		}
 
 		const skyEndY = walls3d.getWallCenterHeight()
+		// const skyEndY = walls3d.wallCenterHeight + walls3d.jumpVel;
 
 		ctx3d.drawImage(bgTopImg, bgTopX, skyEndY, bgTopImg.width, -bgTopImg.height)
 		ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, skyEndY, bgTopImg.width, -bgTopImg.height)
@@ -112,7 +114,7 @@ const gameLoop = () => {
 		ctx3d.fillRect(0, 0, world3d.width, skyEndY)
 
 		ctx3d.fillStyle = `rgb(15, 35, 15)`
-		ctx3d.fillRect(0, skyEndY, world3d.width, world3d.height)
+		ctx3d.fillRect(0, skyEndY, world3d.width, world3d.height - skyEndY)
 
 		const sprites = walls.getSprites()
 		lightSource.setSprites(sprites)
