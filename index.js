@@ -6,9 +6,13 @@ import Walls from './walls.js'
 import Walls3d from './walls3d.js'
 
 const qualitySlider = document.querySelector('#quality')
-const qualityValue = document.querySelector('#qualityValue')
 const fovSlider = document.querySelector('#fov')
+const fpsCapSlider = document.querySelector('#fpsCap')
+
+const qualityValue = document.querySelector('#qualityValue')
 const fovValue = document.querySelector('#fovValue')
+const fpsCapValue = document.querySelector('#fpsCapValue')
+
 const resetSettingsBtn = document.querySelector('#resetSettingsBtn')
 const settingsBtn = document.querySelector('#settingsBtn')
 const settings = document.querySelector('.settings')
@@ -44,11 +48,12 @@ bgTopImg.src = './stars.jpg'
 // ctx.canvas.height = window.innerHeight / 1.2;
 // ctx3d.canvas.height = window.innerHeight / 1.2;
 
-let fpsInterval, now, then, elapsed, requestID
+let now, then, elapsed, requestID
 
 let fullscreen = false
 
-const fps = 144
+const fpsValues = [30, 45, 60, 75, 120, 144]
+let fpsCap = fpsCapValue.innerText
 
 let walls
 let lightSource
@@ -71,6 +76,8 @@ const setFramerateValue = () => {
 
 const gameLoop = () => {
 	requestID = requestAnimationFrame(gameLoop)
+
+	const fpsInterval = 1000 / fpsCap
 
 	now = Date.now()
 	elapsed = now - then
@@ -135,7 +142,6 @@ const gameLoop = () => {
 }
 
 const beginLoop = () => {
-	fpsInterval = 1000 / fps
 	then = Date.now()
 
 	//show or hide canvas with rays based on fullscreen variable
@@ -172,6 +178,7 @@ window.onload = () => {
 
 function applySavedValues() {
 	const savedFOV = JSON.parse(localStorage.getItem('fov'))
+	const savedFpsCap = JSON.parse(localStorage.getItem('fpsCap'))
 	const savedRayDensity = JSON.parse(localStorage.getItem('rayDensity'))
 	const savedWalls = JSON.parse(localStorage.getItem('walls'))
 	const savedSprites = JSON.parse(localStorage.getItem('sprites'))
@@ -222,6 +229,17 @@ function applySavedValues() {
 		qualityValue.innerText = 100 - JSON.parse(savedRayDensity)
 		lightSource.setRayDensity(JSON.parse(savedRayDensity))
 		qualitySlider.value = 100 - JSON.parse(savedRayDensity)
+	}
+
+	if (savedFpsCap) {
+		fpsCapValue.innerText = savedFpsCap
+		fpsCap = JSON.parse(savedFpsCap)
+		for (let i = 0; i < fpsValues.length; i++) {
+			if (fpsValues[i] === fpsCap) {
+				fpsCapSlider.value = i
+				break
+			}
+		}
 	}
 
 	if (fpsOn !== null) {
@@ -367,16 +385,25 @@ document.addEventListener('keyup', e => {
 qualitySlider.oninput = () => {
 	qualityValue.innerText = JSON.parse(qualitySlider.value)
 	lightSource.setRayDensity(100 - JSON.parse(qualitySlider.value))
+	localStorage.setItem('rayDensity', JSON.stringify(100 - JSON.parse(qualitySlider.value)))
 }
 
 fovSlider.oninput = () => {
 	fovValue.innerText = JSON.parse(fovSlider.value)
 	lightSource.setFov(JSON.parse(fovSlider.value))
+	localStorage.setItem('fov', fovSlider.value)
+}
+
+fpsCapSlider.oninput = () => {
+	fpsCapValue.innerText = fpsValues[JSON.parse(fpsCapSlider.value)]
+	fpsCap = JSON.parse(fpsCapValue.innerText)
+	localStorage.setItem('fpsCap', fpsCap)
 }
 
 resetSettingsBtn.onclick = () => {
 	const fovReset = 45
 	const rayDReset = 8
+	const fpsCapReset = 60
 
 	walls.setCorners([])
 	lightSource.setCorners([])
@@ -384,13 +411,25 @@ resetSettingsBtn.onclick = () => {
 	localStorage.setItem('showCorners', JSON.stringify(false))
 	showCorners = false
 
-	fovValue.innerText = fovReset
-	lightSource.setFov(fovReset)
-	fovSlider.value = fovReset
-
 	qualityValue.innerText = 100 - rayDReset
 	lightSource.setRayDensity(rayDReset)
 	qualitySlider.value = 100 - rayDReset
+	localStorage.setItem('rayDensity', JSON.stringify(rayDReset))
+
+	fovValue.innerText = fovReset
+	lightSource.setFov(fovReset)
+	fovSlider.value = fovReset
+	localStorage.setItem('fov', JSON.stringify(fovReset))
+
+	fpsCapValue.innerText = fpsCapReset
+	fpsCap = fpsCapReset
+	for (let i = 0; i < fpsValues.length; i++) {
+		if (fpsValues[i] === fpsCap) {
+			fpsCapSlider.value = i
+			break
+		}
+	}
+	localStorage.setItem('fpsCap', JSON.stringify(fpsCapReset))
 
 	fpsCounter.classList.add('active')
 	toggleFPSBtn.classList.add('active')

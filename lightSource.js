@@ -82,14 +82,12 @@ export default class LightSource {
 		this.fov = value
 		this.fovRad = this.fov * (Math.PI / 180)
 		this.setAngles()
-		localStorage.setItem('fov', JSON.stringify(value))
 	}
 
 	setRayDensity(value) {
 		this.rayDensityAdjustment = value
 		this.rayOpacity = value / 100 + 0.14
 		this.setAngles()
-		localStorage.setItem('rayDensity', JSON.stringify(value))
 	}
 
 	setRotationValue(rot) {
