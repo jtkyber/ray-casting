@@ -16,6 +16,8 @@ export default class Walls3d {
 	}
 
 	setWallCenterHeight(amt) {
+		if (amt > 0 && this.wallCenterHeightOriginal <= -world3d.height / 2) return
+		if (amt < 0 && this.wallCenterHeightOriginal >= this.world3d.height) return
 		this.wallCenterHeightOriginal -= amt
 	}
 
