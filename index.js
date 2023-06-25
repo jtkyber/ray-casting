@@ -350,7 +350,7 @@ document.addEventListener('keyup', e => {
 		// }
 		fullscreen = !fullscreen
 		lightSource.setFullscreen(fullscreen)
-		beginLoop(fps)
+		beginLoop(fpsCap)
 	}
 
 	if (e.code === 'ShiftLeft') {
