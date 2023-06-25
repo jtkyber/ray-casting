@@ -481,6 +481,11 @@ export default class LightSource {
 			this.moveDirRays.backward = Infinity
 		}
 
+		ctx.fillStyle = 'rgb(0, 155, 255)'
+		ctx.beginPath()
+		ctx.ellipse(x, y, 6, 6, 0, 0, 2 * Math.PI)
+		ctx.fill()
+
 		this.walls3d.draw(this.allRays, this.allSpriteRays, this.cornersInView)
 	}
 }

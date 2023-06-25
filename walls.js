@@ -207,13 +207,11 @@ export default class Walls {
 			const { x, y } = this.sprites[i]
 			const slope = (y - this.playerY) / (x - this.playerX)
 			const perpSlope = -(1 / slope)
-			const perpAngle = this.toDegrees(Math.atan(perpSlope))
-			let angle1 = ((perpAngle % 360) + 360) % 360
-
-			this.perpSprites[i].x1 = x + deltaD * Math.cos(this.toRadians(angle1))
-			this.perpSprites[i].y1 = y + deltaD * Math.sin(this.toRadians(angle1))
-			this.perpSprites[i].x2 = x - deltaD * Math.cos(this.toRadians(angle1))
-			this.perpSprites[i].y2 = y - deltaD * Math.sin(this.toRadians(angle1))
+			const angle = Math.atan(perpSlope)
+			this.perpSprites[i].x1 = x + deltaD * Math.cos(angle)
+			this.perpSprites[i].y1 = y + deltaD * Math.sin(angle)
+			this.perpSprites[i].x2 = x - deltaD * Math.cos(angle)
+			this.perpSprites[i].y2 = y - deltaD * Math.sin(angle)
 		}
 	}
 
