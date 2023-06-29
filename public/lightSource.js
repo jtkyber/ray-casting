@@ -358,9 +358,9 @@ export default class LightSource {
 					}
 				}
 
-				this.allRays.push(record)
+				this.allRays.push({ len: record, coord: { x: closest[0], y: closest[1] } })
 			} else {
-				this.allRays.push(Infinity)
+				this.allRays.push({ len: Infinity, coord: null })
 			}
 
 			if (closestSprite) {
