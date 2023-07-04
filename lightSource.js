@@ -1,13 +1,14 @@
-import Walls3d from './walls3d.js'
-
 export default class LightSource {
 	constructor(world, world3d, allWalls, allCorners, walls3d) {
 		this.world = world
 		this.world3d = world3d
+		this.ctx = this.world.getContext('2d')
 		this.allWalls = allWalls
 		this.allCorners = allCorners
 		this.cornersInView = []
-		this.allRays = []
+		this.rayLengths = null
+		this.rayXvalues = null
+		this.rayYvalues = null
 		this.allSpriteRays = []
 		this.moveDirRays = {
 			foreward: Infinity,
@@ -35,10 +36,11 @@ export default class LightSource {
 		this.flashlight = document.querySelector('.flashlight')
 		this.fovRad = this.fov * (Math.PI / 180)
 		this.distToProjectionPlane = world3d.width / 2 / Math.tan(this.fovRad / 2)
-		this.rayAngles = []
+		this.rayAngles = null
 		this.rayDensityAdjustment = 12
 		this.fullscreen = false
 		this.sprites = []
+		this.angleArrLength = 0
 	}
 
 	setFullscreen(isFS) {
@@ -62,12 +64,30 @@ export default class LightSource {
 	}
 
 	setAngles() {
-		this.rayAngles = []
+		this.angleArrLength = Math.ceil(
+			(this.world3d.width + this.rayDensityAdjustment) / this.rayDensityAdjustment
+		)
+		this.rayAngles = new Float32Array(this.angleArrLength)
 		this.distToProjectionPlane = world3d.width / 2 / Math.tan(this.fovRad / 2)
-		for (let x = 0; x < this.world3d.width + this.rayDensityAdjustment; x += this.rayDensityAdjustment) {
-			this.rayAngles.push(Math.atan((x - this.world3d.width / 2) / this.distToProjectionPlane))
+
+		let x = 0
+		for (let i = 0; i < this.angleArrLength; i++) {
+			this.rayAngles[i] = Math.atan((x - this.world3d.width / 2) / this.distToProjectionPlane)
+			x += this.rayDensityAdjustment
 		}
+
+		this.rayLengths = new Float32Array(this.rayAngles.length)
+		this.rayXvalues = new Float32Array(this.rayAngles.length)
+		this.rayYvalues = new Float32Array(this.rayAngles.length)
 	}
+
+	// setAngles() {
+	// 	this.rayAngles = []
+	// 	this.distToProjectionPlane = world3d.width / 2 / Math.tan(this.fovRad / 2)
+	// 	for (let x = 0; x < this.world3d.width + this.rayDensityAdjustment; x += this.rayDensityAdjustment) {
+	// 		this.rayAngles.push(Math.atan((x - this.world3d.width / 2) / this.distToProjectionPlane))
+	// 	}
+	// }
 
 	setPlayerPos(playerX, playerY) {
 		this.playerX = playerX
@@ -87,6 +107,7 @@ export default class LightSource {
 	setRayDensity(value) {
 		this.rayDensityAdjustment = value
 		this.rayOpacity = value / 100 + 0.14
+
 		this.setAngles()
 	}
 
@@ -251,10 +272,28 @@ export default class LightSource {
 		}
 	}
 
+	getSizeInBytes(obj) {
+		let str = null
+		if (typeof obj === 'string') {
+			// If obj is a string, then use it
+			str = obj
+		} else {
+			// Else, make obj into a string
+			str = JSON.stringify(obj)
+		}
+		// Get the length of the Uint8Array
+		const bytes = new TextEncoder().encode(str).length
+		return bytes
+	}
+
 	draw(x = this.playerX, y = this.playerY) {
-		const ctx = world.getContext('2d')
+		this.ctx = world.getContext('2d')
 		const r = 1
-		this.allRays = []
+
+		// if (this.rayLengths) this.rayLengths.clear()
+		// if (this.rayXvalues) this.rayXvalues.clear()
+		// if (this.rayYvalues) this.rayYvalues.clear()
+
 		this.allSpriteRays = []
 		this.cornersInView = []
 		const rotation = ((this.rotation % 360) + 360) % 360
@@ -304,12 +343,12 @@ export default class LightSource {
 					}
 					const spritePosOnScreen = rayRotDiff / this.fov + 0.5
 
-					ctx.beginPath()
-					ctx.moveTo(x, y)
-					ctx.lineTo(intersection[0], intersection[1])
-					ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`
-					ctx.lineWidth = 1
-					ctx.stroke()
+					this.ctx.beginPath()
+					this.ctx.moveTo(x, y)
+					this.ctx.lineTo(intersection[0], intersection[1])
+					this.ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`
+					this.ctx.lineWidth = 1
+					this.ctx.stroke()
 
 					this.allSpriteRays.push({
 						rayLength: d,
@@ -327,14 +366,14 @@ export default class LightSource {
 			this.allSpriteRays.sort((a, b) => b.rayLength - a.rayLength)
 
 			if (closest) {
-				ctx.beginPath()
-				ctx.moveTo(x, y)
-				ctx.lineTo(closest[0], closest[1])
-				ctx.strokeStyle = `rgba(255,255,255,${this.rayOpacity})`
-				ctx.lineWidth = 1
-				ctx.stroke()
+				this.ctx.beginPath()
+				this.ctx.moveTo(x, y)
+				this.ctx.lineTo(closest[0], closest[1])
+				this.ctx.strokeStyle = `rgba(255,255,255,${this.rayOpacity})`
+				this.ctx.lineWidth = 1
+				this.ctx.stroke()
 
-				for (const corner of this.allCorners) {
+				for (let i = 0; i < this.allCorners.length; i++) {
 					// const cornerDx = Math.abs(x - corner.x);
 					// const cornerDy = Math.abs(y - corner.y);
 					// const cornerD = Math.sqrt(cornerDx * cornerDx + cornerDy * cornerDy);
@@ -342,25 +381,33 @@ export default class LightSource {
 					// const cornerRayDiff = Math.abs(cornerD - record);
 					const cornerSpread = 3
 					if (
-						closest[0] > corner.x - cornerSpread &&
-						closest[0] < corner.x + cornerSpread &&
-						closest[1] > corner.y - cornerSpread &&
-						closest[1] < corner.y + cornerSpread
+						closest[0] > this.allCorners[i].x - cornerSpread &&
+						closest[0] < this.allCorners[i].x + cornerSpread &&
+						closest[1] > this.allCorners[i].y - cornerSpread &&
+						closest[1] < this.allCorners[i].y + cornerSpread
 					) {
-						ctx.beginPath()
-						ctx.moveTo(x, y)
-						ctx.lineTo(corner.x, corner.y)
-						ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`
-						ctx.lineWidth = 2
-						ctx.stroke()
+						this.ctx.beginPath()
+						this.ctx.moveTo(x, y)
+						this.ctx.lineTo(this.allCorners[i].x, this.allCorners[i].y)
+						this.ctx.strokeStyle = `rgba(255,0,0,${this.rayOpacity})`
+						this.ctx.lineWidth = 2
+						this.ctx.stroke()
 						this.cornersInView.push(record)
 						break
 					}
 				}
 
-				this.allRays.push(record)
+				// this.allRays.push({ len: record, coord: { x: closest[0], y: closest[1] } })
+				this.rayLengths[i] = record
+				this.rayXvalues[i] = closest[0]
+				this.rayYvalues[i] = closest[1]
+
+				// console.log(this.getSizeInBytes({ x: closest[0], y: closest[1] }))
 			} else {
-				this.allRays.push(Infinity)
+				// this.allRays.push({ len: Infinity, coord: null })
+				this.rayLengths[i] = Infinity
+				this.rayXvalues[i] = null
+				this.rayYvalues[i] = null
 			}
 
 			if (closestSprite) {
@@ -375,12 +422,12 @@ export default class LightSource {
 				//     : 360 + rayRotDiff
 				// }
 				// const spritePosOnScreen = rayRotDiff / this.fov + 0.5;
-				// ctx.beginPath();
-				// ctx.moveTo(x, y);
-				// ctx.lineTo(closestSprite[0], closestSprite[1]);
-				// ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`;
-				// ctx.lineWidth = 1;
-				// ctx.stroke();
+				// this.ctx.beginPath();
+				// this.ctx.moveTo(x, y);
+				// this.ctx.lineTo(closestSprite[0], closestSprite[1]);
+				// this.ctx.strokeStyle = `rgba(245,230,66,${this.rayOpacity})`;
+				// this.ctx.lineWidth = 1;
+				// this.ctx.stroke();
 				// this.allSpriteRays.push({rayLength: recordSprite, percAcrScreen: spritePosOnScreen});
 			}
 		}
@@ -479,11 +526,17 @@ export default class LightSource {
 			this.moveDirRays.backward = Infinity
 		}
 
-		ctx.fillStyle = 'rgb(0, 155, 255)'
-		ctx.beginPath()
-		ctx.ellipse(x, y, 6, 6, 0, 0, 2 * Math.PI)
-		ctx.fill()
+		this.ctx.fillStyle = 'rgb(0, 155, 255)'
+		this.ctx.beginPath()
+		this.ctx.ellipse(x, y, 6, 6, 0, 0, 2 * Math.PI)
+		this.ctx.fill()
 
-		this.walls3d.draw(this.allRays, this.allSpriteRays, this.cornersInView)
+		this.walls3d.draw(
+			this.rayLengths,
+			this.rayXvalues,
+			this.rayYvalues,
+			this.allSpriteRays,
+			this.cornersInView
+		)
 	}
 }

@@ -1,6 +1,6 @@
 import Build from './build.js'
-import defaultSprites from './defaultSprites.json' assert { type: 'json' }
-import defaultWalls from './defaultWalls.json' assert { type: 'json' }
+import defaultSprites from './defaultSprites.js'
+import defaultWalls from './defaultWalls.js'
 import LightSource from './lightSource.js'
 import Walls from './walls.js'
 import Walls3d from './walls3d.js'
@@ -34,21 +34,22 @@ const fpsValue = document.querySelector('.fpsValue')
 const world = document.getElementById('world')
 const world3d = document.getElementById('world3d')
 const worldCreation = document.getElementById('worldCreation')
+
 const ctx = world.getContext('2d')
 const ctx3d = world3d.getContext('2d')
 const ctxBuild = worldCreation.getContext('2d')
 
 let editMode = false
 
-const bgTopImg = new Image()
-bgTopImg.src = './stars.jpg'
+// const bgTopImg = new Image()
+// bgTopImg.src = './stars.jpg'
 
 // ctx.canvas.width = window.innerWidth / 2.2;
 // ctx3d.canvas.width = window.innerWidth / 2.2;
 // ctx.canvas.height = window.innerHeight / 1.2;
 // ctx3d.canvas.height = window.innerHeight / 1.2;
 
-let now, then, elapsed, requestID
+let fpsInterval, now, then, elapsed, requestID
 
 let fullscreen = false
 
@@ -77,7 +78,7 @@ const setFramerateValue = () => {
 const gameLoop = () => {
 	requestID = requestAnimationFrame(gameLoop)
 
-	const fpsInterval = 1000 / fpsCap
+	fpsInterval = 1000 / fpsCap
 
 	now = Date.now()
 	elapsed = now - then
@@ -94,34 +95,8 @@ const gameLoop = () => {
 		walls.draw()
 		build.draw()
 
-		//multiply bg img width by 4 so when you rotate 90deg, you're 1/4th through the img
-		bgTopImg.width = world3d.width * 2
-		bgTopImg.height = world3d.height
-
 		//move the bg img when rotating with keys
-		if (lightSource.moveDirLR === 'left') {
-			bgTopX += (bgTopImg.width / bgTopDividend) * lightSource.rotationAmt
-		} else if (lightSource.moveDirLR === 'right') {
-			bgTopX -= (bgTopImg.width / bgTopDividend) * lightSource.rotationAmt
-		}
-
-		//reset bg img position if ends of img are in view
-		if (bgTopX > 0) {
-			bgTopX = -bgTopImg.width
-		} else if (bgTopX < -bgTopImg.width) {
-			bgTopX = 0
-		}
-
-		const skyEndY = walls3d.getWallCenterHeight()
-		// const skyEndY = walls3d.wallCenterHeight + walls3d.jumpVel;
-
-		ctx3d.drawImage(bgTopImg, bgTopX, skyEndY, bgTopImg.width, -bgTopImg.height)
-		ctx3d.drawImage(bgTopImg, bgTopX + bgTopImg.width, skyEndY, bgTopImg.width, -bgTopImg.height)
-		ctx3d.fillStyle = `rgba(0,0,0,0.7)`
-		ctx3d.fillRect(0, 0, world3d.width, skyEndY)
-
-		ctx3d.fillStyle = `rgb(15, 35, 15)`
-		ctx3d.fillRect(0, skyEndY, world3d.width, world3d.height - skyEndY)
+		walls3d.setbgTopX(lightSource.rotationAmt, lightSource.moveDirLR)
 
 		const sprites = walls.getSprites()
 		lightSource.setSprites(sprites)
@@ -273,7 +248,7 @@ document.addEventListener('mousemove', e => {
 	if (fullscreen) {
 		lightSource.setMouseRotation(e.movementX / 20)
 		walls3d.setWallCenterHeight(e.movementY)
-		bgTopX -= ((bgTopImg.width / bgTopDividend) * e.movementX) / 20
+		walls3d.setBgTopXMouseMove(e.movementX)
 		localStorage.setItem('playerRot', JSON.stringify(lightSource.getRotationValue()))
 	}
 
