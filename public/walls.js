@@ -11,6 +11,14 @@ export default class Walls {
 		this.playerX = 0
 		this.playerY = 0
 		this.spriteWidth = 10
+		this.x1 = 0
+		this.y1 = 0
+		this.x2 = 0
+		this.y2 = 0
+		this.x3 = 0
+		this.y3 = 0
+		this.x4 = 0
+		this.y4 = 0
 	}
 
 	setPlayerPos([x, y]) {
@@ -62,39 +70,44 @@ export default class Walls {
 	getCorners() {
 		let corners = []
 		for (const lineA of this.walls) {
-			const x1 = lineA.x1
-			const y1 = lineA.y1
-			const x2 = lineA.x2
-			const y2 = lineA.y2
+			this.x1 = lineA.x1
+			this.y1 = lineA.y1
+			this.x2 = lineA.x2
+			this.y2 = lineA.y2
 
 			for (const lineB of this.walls) {
-				const x3 = lineB.x1
-				const y3 = lineB.y1
-				const x4 = lineB.x2
-				const y4 = lineB.y2
-				if ((x1 === x3 && y1 === y3) || (x1 === x4 && y1 === y4)) {
+				this.x3 = lineB.x1
+				this.y3 = lineB.y1
+				this.x4 = lineB.x2
+				this.y4 = lineB.y2
+				if ((this.x1 === this.x3 && this.y1 === this.y3) || (this.x1 === this.x4 && this.y1 === this.y4)) {
 					corners.push({
-						x: x1,
-						y: y1,
+						x: this.x1,
+						y: this.y1,
 					})
-				} else if ((x2 === x3 && y2 === y3) || (x2 === x4 && y2 === y4)) {
+				} else if (
+					(this.x2 === this.x3 && this.y2 === this.y3) ||
+					(this.x2 === this.x4 && this.y2 === this.y4)
+				) {
 					corners.push({
-						x: x2,
-						y: y2,
+						x: this.x2,
+						y: this.y2,
 					})
-				} else if (x1 !== x3 && y1 !== y3 && x2 !== x4 && y2 !== y4) {
-					const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+				} else if (this.x1 !== this.x3 && this.y1 !== this.y3 && this.x2 !== this.x4 && this.y2 !== this.y4) {
+					const denom = (this.x1 - this.x2) * (this.y3 - this.y4) - (this.y1 - this.y2) * (this.x3 - this.x4)
 					if (denom !== 0) {
-						const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
-						const u = ((x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2)) / denom
+						const t =
+							((this.x1 - this.x3) * (this.y3 - this.y4) - (this.y1 - this.y3) * (this.x3 - this.x4)) / denom
+						const u =
+							((this.x1 - this.x3) * (this.y1 - this.y2) - (this.y1 - this.y3) * (this.x1 - this.x2)) / denom
 
 						if (t > 0 && t < 1 && u > 0) {
-							const px = x3 + u * (x4 - x3)
-							const py = y3 + u * (y4 - y3)
+							const px = this.x3 + u * (this.x4 - this.x3)
+							const py = this.y3 + u * (this.y4 - this.y3)
 
 							if (
-								this.pointIsBetween(x1, y1, x2, y2, px, py) &&
-								this.pointIsBetween(x3, y3, x4, y4, px, py)
+								this.pointIsBetween(this.x1, this.y1, this.x2, this.y2, px, py) &&
+								this.pointIsBetween(this.x3, this.y3, this.x4, this.y4, px, py)
 							) {
 								corners.push({
 									x: px,

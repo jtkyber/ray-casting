@@ -7,7 +7,7 @@ export default class Walls3d {
 		this.bgTopImg = new Image()
 		this.bgTopImg.src = './stars.jpg'
 		this.wallTexture = new Image()
-		this.wallTexture.src = './wallTexture.png'
+		this.wallTexture.src = './brickTexture.png'
 		this.worldHalfHeight = world3d.height / 2
 		this.wallCenterHeightOriginal = this.world3d.height / 2.5
 		this.jumpStep = 6
@@ -18,6 +18,9 @@ export default class Walls3d {
 		this.bgTopX = 0
 		this.mapPixelW = this.world3d.width
 		this.mapPixelH = this.world3d.height
+		this.wallWidth = this.world3d.width / this.rayNum
+		this.wallWidthOversized = this.wallWidth + 1
+		this.spriteWidthOversized = this.wallWidth + 12
 	}
 
 	setWallCenterHeight(amt) {
@@ -97,23 +100,19 @@ export default class Walls3d {
 		this.ctx.fillRect(0, skyEndY, world3d.width, world3d.height - skyEndY)
 	}
 
-	draw(rays, spriteRays, cornerRays) {
-		this.rayNum = rays.length
+	draw(rayLengths, rayXvalues, rayYvalues, spriteRays, cornerRays) {
+		this.rayNum = rayLengths.length
 		this.spriteNum = spriteRays.length
-		const wallWidth = this.world3d.width / rays.length
-		const wallWidthOversized = wallWidth
-		// const spriteWidth = this.world3d.width / spriteRayNum;
-		const spriteWidthOversized = wallWidth + 12
+		this.wallWidth = this.world3d.width / this.rayNum
+		this.wallWidthOversized = this.wallWidth + 1
+		this.spriteWidthOversized = this.wallWidth + 12
 		let wallX = 0
 		// let cornerPoint = null;
 
 		this.drawBackground()
 
-		for (let i = 0; i < rays.length; i++) {
-			const ray = rays[i]
-			const rayLength = ray.len
-			// const rayX = ray.coord.x
-			// const rayY = ray.coord.y
+		for (let i = 0; i < this.rayNum; i++) {
+			const rayLength = rayLengths[i]
 
 			// const fovRad = this.fov * (Math.PI / 180);
 			// const wallShiftAmt = this.worldHalfHeight / 4;
@@ -131,42 +130,63 @@ export default class Walls3d {
 			let wallDarkness = rayLength / this.world3d.height
 			wallDarkness = (this.world3dDiag - rayLength) / this.world3dDiag
 
-			// const wallGradient = this.ctx.createLinearGradient(
-			// 	wallX + wallWidthOversized / 2,
-			// 	wallEndBottom,
-			// 	wallX + wallWidthOversized / 2,
-			// 	wallStartTop
-			// )
-			// wallGradient.addColorStop(0, `rgba(${75 * wallDarkness},${75 * wallDarkness},${75 * wallDarkness},1)`)
-			// wallGradient.addColorStop(
-			// 	1,
-			// 	`rgba(${255 * wallDarkness},${255 * wallDarkness},${255 * wallDarkness},1)`
-			// )
-
-			const sWidth =
-				i > 0
-					? Math.abs(rays[i].coord.x - rays[i - 1].coord.x)
-					: Math.abs(rays[i].coord.x - rays[i + 1].coord.x)
-
-			const sHeight = sWidth * (this.mapPixelH / this.mapPixelW)
-
-			// if (i === 0) console.log(sWidth, sHeight)
-
-			this.ctx.drawImage(
-				this.wallTexture,
-				this.mapPixelW * (ray.coord.x / this.mapPixelW),
-				0,
-				sWidth,
-				sHeight,
-				wallX,
-				wallStartTop,
-				wallWidthOversized,
-				wallEndBottom - wallStartTop
+			const wallGradient = this.ctx.createLinearGradient(
+				wallX + this.wallWidthOversized / 2,
+				wallEndBottom,
+				wallX + this.wallWidthOversized / 2,
+				wallStartTop
+			)
+			wallGradient.addColorStop(0, `rgba(${75 * wallDarkness},${75 * wallDarkness},${75 * wallDarkness},1)`)
+			wallGradient.addColorStop(
+				1,
+				`rgba(${255 * wallDarkness},${255 * wallDarkness},${255 * wallDarkness},1)`
 			)
 
-			this.ctx.fillStyle = `rgba(0, 0, 0, ${(1 - wallDarkness) * 2})`
-			// this.ctx.fillStyle = wallGradient
-			// this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, wallEndBottom - wallStartTop)
+			// const chunkSize = 64
+			// const chunkPosX =
+			// 	rayXvalues[i] === chunkSize ? chunkSize : ((rayXvalues[i] % chunkSize) + chunkSize) % chunkSize
+
+			// function getSwidth() {
+			// 	let chunkPosX2 = 0
+			// 	if (rayXvalues[i + 1]) {
+			// 		chunkPosX2 =
+			// 			rayXvalues[i + 1] === chunkSize
+			// 				? chunkSize
+			// 				: ((rayXvalues[i + 1] % chunkSize) + chunkSize) % chunkSize
+			// 	} else {
+			// 		chunkPosX2 =
+			// 			rayXvalues[i - 1] === chunkSize
+			// 				? chunkSize
+			// 				: ((rayXvalues[i - 1] % chunkSize) + chunkSize) % chunkSize
+			// 	}
+			// 	return Math.abs(chunkPosX2 - chunkPosX)
+			// }
+
+			// const chunkPosX2 =
+			// 	rayXvalues[i + 1] === chunkSize
+			// 		? chunkSize
+			// 		: ((rayXvalues[i + 1] % chunkSize) + chunkSize) % chunkSize
+
+			// const sWidth =
+			// 	i > 0 ? Math.abs(rayXvalues[i] - rayXvalues[i - 1]) : Math.abs(rayXvalues[i] - rayXvalues[i + 1])
+
+			// const sHeight = sWidth * (this.mapPixelH / this.mapPixelW)
+
+			// this.ctx.drawImage(
+			// 	this.wallTexture,
+			// 	chunkPosX,
+			// 	0,
+			// 	getSwidth(),
+			// 	this.wallTexture.height,
+			// 	wallX,
+			// 	wallStartTop,
+			// 	this.wallWidthOversized,
+			// 	wallEndBottom - wallStartTop
+			// )
+
+			// this.ctx.fillStyle = `rgba(0, 0, 0, ${(1 - wallDarkness) * 2})`
+			this.ctx.fillStyle = wallGradient
+			this.ctx.fillRect(wallX, wallStartTop, this.wallWidthOversized, wallEndBottom - wallStartTop)
 
 			wallDarkness = wallDarkness + 0.5
 
@@ -176,46 +196,46 @@ export default class Walls3d {
 
 			// this.ctx.fillStyle = 'rgba(0, 150, 255, 1)';
 			// this.ctx.fillStyle = 'rgba(0, 150, 255, 1)';
-			// this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, 3);
-			// this.ctx.fillRect(wallX, wallEndBottom, wallWidthOversized, 3);
+			// this.ctx.fillRect(wallX, wallStartTop, this.wallWidthOversized, 3);
+			// this.ctx.fillRect(wallX, wallEndBottom, this.wallWidthOversized, 3);
 
 			// for (const lengthToCorner of cornerRays) {
-			//     if (lengthToCorner === rayLength) {
-			//         this.ctx.lineWidth = 1;
-			//         // this.ctx.strokeStyle = cornerGradient;
-			//         this.ctx.beginPath();
-			//         this.ctx.moveTo(wallX, wallStartTop);
-			//         this.ctx.lineTo(wallX, wallEndBottom);
-			//         this.ctx.stroke();
-			//     }
+			// 	if (lengthToCorner === rayLength) {
+			// 		this.ctx.lineWidth = 1
+			// 		// this.ctx.strokeStyle = cornerGradient;
+			// 		this.ctx.beginPath()
+			// 		this.ctx.moveTo(wallX, wallStartTop)
+			// 		this.ctx.lineTo(wallX, wallEndBottom)
+			// 		this.ctx.stroke()
+			// 	}
 			// }
 
 			for (const cornerRay of cornerRays) {
-				if (cornerRay === rayLength) {
+				if (Math.abs(cornerRay - rayLength) < 0.0001) {
 					// this.ctx.fillStyle = cornerGradient;
-					// this.ctx.fillRect(wallX, wallStartTop, wallWidthOversized, wallEndBottom - wallStartTop);
+					// this.ctx.fillRect(wallX, wallStartTop, this.wallWidthOversized, wallEndBottom - wallStartTop);
 					this.ctx.lineWidth = 3
 					this.ctx.strokeStyle = cornerGradient
 					this.ctx.beginPath()
-					this.ctx.moveTo(wallX + wallWidthOversized / 2, wallStartTop)
-					this.ctx.lineTo(wallX + wallWidthOversized / 2, wallEndBottom)
+					this.ctx.moveTo(wallX + this.wallWidthOversized / 2, wallStartTop)
+					this.ctx.lineTo(wallX + this.wallWidthOversized / 2, wallEndBottom)
 					this.ctx.stroke()
 				}
 			}
 
-			wallX += wallWidth
+			wallX += this.wallWidth
 		}
 
 		for (let i = 0; i < spriteRays.length; i++) {
 			const rayLength = spriteRays[i].rayLength
 			const percAcrScreen = spriteRays[i].percAcrScreen
-			const spriteX = this.world3d.width * percAcrScreen - spriteWidthOversized / 2
+			const spriteX = this.world3d.width * percAcrScreen - this.wallWidthOversized / 2
 
 			const wallShiftAmt = (this.world3d.height * 50) / rayLength / 4.5
 			let wallCenterHeight = this.wallCenterHeightOriginal + wallShiftAmt * 2
 
 			if (this.isJumping) {
-				wallCenterHeight = this.jump(rayLength, wallCenterHeight, i + rays.length)
+				wallCenterHeight = this.jump(rayLength, wallCenterHeight, i + rayLength)
 			}
 
 			const wallStartTop = wallCenterHeight - wallShiftAmt
@@ -224,16 +244,16 @@ export default class Walls3d {
 			let wallDarkness = (this.world3dDiag - rayLength) / this.world3dDiag
 
 			const wallGradient = this.ctx.createLinearGradient(
-				spriteX + spriteWidthOversized / 2,
+				spriteX + this.spriteWidthOversized / 2,
 				wallEndBottom,
-				spriteX + spriteWidthOversized / 2,
+				spriteX + this.spriteWidthOversized / 2,
 				wallStartTop
 			)
 			wallGradient.addColorStop(0, `rgba(${205 * wallDarkness},${190 * wallDarkness},${26 * wallDarkness},1)`)
 			wallGradient.addColorStop(1, `rgba(${245 * wallDarkness},${230 * wallDarkness},${66 * wallDarkness},1)`)
 
 			this.ctx.fillStyle = wallGradient
-			this.ctx.fillRect(spriteX, wallStartTop, spriteWidthOversized, wallEndBottom - wallStartTop)
+			this.ctx.fillRect(spriteX, wallStartTop, this.spriteWidthOversized, wallEndBottom - wallStartTop)
 		}
 	}
 }
