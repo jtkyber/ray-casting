@@ -16,6 +16,7 @@ export default class Build {
 		this.actualCanvasWidth = 1920;
 		this.actualCanvasHeight = 1200;
 		this.addingSprite = false;
+		this.deletedMaps = [];
 	}
 
 	getWalls() {
@@ -49,11 +50,7 @@ export default class Build {
 		});
 
 		this.allPoints.sprites.push({
-			pos:
-				Math.max(
-					this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0, // Last wall pushed to allPoints
-					this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0 // Last sprite pushed to allPoints
-				) + 1,
+			pos: this.getNextPosValue(),
 			x: this.mousePos.x,
 			y: this.mousePos.y,
 		});
@@ -64,14 +61,8 @@ export default class Build {
 		this.mousePos = {};
 	}
 
-	setMap(map) {
-		this.allPoints = map;
-		this.p1 = {};
-		this.mousePos = {};
-		this.walls = [];
-		this.sprites = [];
-
-		if (!map.walls) this.addEdgeWalls();
+	setMapFromAllPoints(map) {
+		if (!this.walls.length) this.addEdgeWalls();
 
 		for (let i = 0; i < map.walls?.length; i++) {
 			if (i % 2 === 0) {
@@ -90,6 +81,16 @@ export default class Build {
 				y: map.sprites[i].y,
 			});
 		}
+	}
+
+	setMap(map) {
+		this.allPoints = map;
+		this.p1 = {};
+		this.mousePos = {};
+		this.walls = [];
+		this.sprites = [];
+
+		this.setMapFromAllPoints(map);
 	}
 
 	addEdgeWalls() {
@@ -121,9 +122,21 @@ export default class Build {
 		);
 	}
 
+	getNextPosValue() {
+		return (
+			Math.max(
+				this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0,
+				this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0,
+				this.deletedMaps?.[this.deletedMaps.length - 1]?.pos || 0
+			) + 1
+		);
+	}
+
 	clearMap() {
 		this.walls = [];
 		this.sprites = [];
+		if (this.allPoints.walls.length || this.allPoints.sprites.length)
+			this.deletedMaps.push({ map: { ...this.allPoints }, pos: this.getNextPosValue() });
 		this.allPoints = {
 			walls: [],
 			sprites: [],
@@ -132,26 +145,48 @@ export default class Build {
 		this.mousePos = {};
 	}
 
+	getLastPositionArrType() {
+		const lastWallPos = this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0; // Last wall pushed to allPoints
+		const lastSpritePos = this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0; // Last sprite pushed to allPoints
+		const lastDeletedMapPos = this.deletedMaps?.[this.deletedMaps.length - 1]?.pos || 0; // Last map pushed to deletedMaps
+
+		const maxPos = Math.max(lastWallPos, lastSpritePos, lastDeletedMapPos);
+		if (lastWallPos === maxPos) return 'walls';
+		else if (lastSpritePos === maxPos) return 'sprites';
+		else if (lastDeletedMapPos === maxPos) return 'deletedMaps';
+		return null;
+	}
+
 	removeFromStack() {
 		if (this.p1?.x) {
 			this.p1 = {};
 			this.allPoints.walls.pop();
 		} else {
-			console.log(
-				(this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0) >
-					(this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0)
-			);
-			if (
-				(this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0) >
-				(this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0)
-			) {
+			const arrTypeToRemoveFrom = this.getLastPositionArrType(); // Find the array that contains the last item added to the map
+			if (arrTypeToRemoveFrom === 'walls') {
 				this.walls.pop();
 				this.allPoints.walls.pop();
 				this.allPoints.walls.pop();
-			} else {
+			} else if (arrTypeToRemoveFrom === 'sprites') {
 				this.sprites.pop();
 				this.allPoints.sprites.pop();
+			} else if (arrTypeToRemoveFrom === 'deletedMaps') {
+				const lastDeleted = this.deletedMaps.pop();
+				this.allPoints = lastDeleted.map;
+				this.setMapFromAllPoints(this.allPoints);
 			}
+
+			// if (
+			// 	(this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0) >
+			// 	(this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0)
+			// ) {
+			// 	this.walls.pop();
+			// 	this.allPoints.walls.pop();
+			// 	this.allPoints.walls.pop();
+			// } else {
+			// 	this.sprites.pop();
+			// 	this.allPoints.sprites.pop();
+			// }
 		}
 	}
 
@@ -197,20 +232,14 @@ export default class Build {
 				y2: y,
 			});
 
-			const newPos =
-				Math.max(
-					this.allPoints.walls?.[this.allPoints.walls.length - 1]?.pos || 0, // Last wall pushed to allPoints
-					this.allPoints.sprites?.[this.allPoints.sprites.length - 1]?.pos || 0 // Last sprite pushed to allPoints
-				) + 1;
-
 			this.allPoints.walls.push(
 				{
-					pos: newPos,
+					pos: this.getNextPosValue(),
 					x: this.p1.x,
 					y: this.p1.y,
 				},
 				{
-					pos: newPos + 1,
+					pos: this.getNextPosValue() + 1,
 					x: x,
 					y: y,
 				}
