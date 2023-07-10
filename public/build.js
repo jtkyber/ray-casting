@@ -84,13 +84,14 @@ export default class Build {
 	}
 
 	setMap(map) {
-		this.allPoints = map;
+		const mapCopy = JSON.parse(JSON.stringify(map));
+		this.allPoints = mapCopy;
 		this.p1 = {};
 		this.mousePos = {};
 		this.walls = [];
 		this.sprites = [];
 
-		this.setMapFromAllPoints(map);
+		this.setMapFromAllPoints(mapCopy);
 	}
 
 	addEdgeWalls() {
@@ -173,6 +174,8 @@ export default class Build {
 			} else if (arrTypeToRemoveFrom === 'deletedMaps') {
 				const lastDeleted = this.deletedMaps.pop();
 				this.allPoints = lastDeleted.map;
+				this.walls = [];
+				this.sprites = [];
 				this.setMapFromAllPoints(this.allPoints);
 			}
 
