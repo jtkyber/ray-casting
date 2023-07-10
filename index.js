@@ -171,7 +171,7 @@ function applySavedValues() {
 			toggleCornersBtn.classList.add('active');
 		} else toggleCornersBtn.classList.remove('active');
 	} else {
-		build.setMap({ ...defaultMap });
+		build.setMap(defaultMap);
 
 		const w = build.getWalls();
 		const s = build.getSprites();
@@ -188,7 +188,7 @@ function applySavedValues() {
 			toggleCornersBtn.classList.add('active');
 		} else toggleCornersBtn.classList.remove('active');
 
-		localStorage.setItem('map', JSON.stringify({ ...defaultMap }));
+		localStorage.setItem('map', JSON.stringify(defaultMap));
 	}
 
 	if (savedFOV) {
@@ -414,7 +414,7 @@ mapEditorBtn.onclick = () => {
 	if (!editMode) {
 		const savedMap = JSON.parse(localStorage.getItem('map'));
 
-		if (savedMap) build.setMap({ ...savedMap });
+		if (savedMap) build.setMap(savedMap);
 		enterEditor();
 	}
 };
@@ -493,5 +493,5 @@ addSpriteBtn.onclick = () => {
 };
 
 defaultMapBtn.onclick = () => {
-	build.setMap({ ...defaultMap });
+	build.setMap(defaultMap);
 };

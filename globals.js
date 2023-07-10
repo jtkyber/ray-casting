@@ -1,0 +1,1 @@
+window.test = 'testing123';
